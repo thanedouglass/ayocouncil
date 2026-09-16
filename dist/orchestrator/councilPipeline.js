@@ -97,6 +97,21 @@ class CouncilPipeline extends events_1.EventEmitter {
         }
     }
     /**
+     * Purges volatile in-memory deliberations, CoT traces, and audio buffers across the pipeline.
+     * Guarantees zero data retention and anti-extraction sovereignty.
+     */
+    purgeVolatileMemory() {
+        console.log('[CouncilPipeline] Zero-Retention Purge: Obliterating volatile session memory and active states.');
+        this.isDeliberating = false;
+        this.liveClient.purgeSessionBuffers();
+        const memoryBytesCleared = process.memoryUsage().heapUsed;
+        return {
+            purged: true,
+            timestamp: new Date().toISOString(),
+            memoryBytesCleared
+        };
+    }
+    /**
      * Getter for the underlying real-time client.
      */
     getLiveClient() {

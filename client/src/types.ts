@@ -22,6 +22,7 @@ export interface ChairmanDossier {
   cosmicAlignments: string[];
   keyTensions: string[];
   somaticPrescriptions: string[];
+  strategicExpansionVector?: string;
   rawSeatDeliberations: SeatDeliberation[];
   metadata: {
     totalDeliberations: number;
@@ -91,6 +92,7 @@ export type WebSocketIncomingEvent =
     }
   | { type: 'status'; message: string }
   | { type: 'speech_completed'; response: any }
+  | { type: 'session_purged'; timestamp: string; memoryBytesCleared: number }
   | { type: 'CRITICAL_INTERCEPT'; triage: TriageResult }
   | { type: 'error'; error: string };
 
@@ -98,4 +100,5 @@ export type WebSocketOutgoingEvent =
   | { type: 'audio_chunk'; pcmBase64: string }
   | { type: 'commit_audio' }
   | { type: 'cancel_speech' }
+  | { type: 'purge_session' }
   | { type: 'triage_check'; text: string };

@@ -12,7 +12,8 @@ import {
   Eye,
   CheckCircle2,
   AlertTriangle,
-  Sparkles
+  Sparkles,
+  ArrowUpRight
 } from 'lucide-react';
 
 interface Props {
@@ -163,7 +164,7 @@ export const CouncilDossierPane: React.FC<Props> = ({
                   { id: 'seat_4_mystic_cosmologist', label: 'IV: Mystic' },
                   { id: 'seat_5_pragmatist', label: 'V: Pragmatic' },
                   { id: 'seat_6_psychoanalytic', label: 'VI: Archetypal' },
-                  { id: 'seat_7_dialectical', label: 'VII: Dialectical' }
+                  { id: 'seat_7_dialectical', label: 'VII: Dialectical & Growth' }
                 ].map((tab) => {
                   const hasLiveStream = !!liveCotStream[tab.id];
                   const isSelected = activeSeatTab === tab.id;
@@ -262,6 +263,29 @@ export const CouncilDossierPane: React.FC<Props> = ({
             </div>
           )}
         </div>
+
+        {/* Section: Strategic Expansion Vector // Outgrowing the Space */}
+        {dossier?.strategicExpansionVector && (
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between text-indigo-300 font-semibold uppercase tracking-wider text-[11px]">
+              <span className="flex items-center space-x-2">
+                <ArrowUpRight className="w-4 h-4 text-indigo-400" />
+                <span>Strategic Expansion Vector // Outgrowing the Space</span>
+              </span>
+              <span className="px-2 py-0.5 rounded bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 text-[9px] font-bold tracking-widest uppercase">
+                Container Diagnosis
+              </span>
+            </div>
+            <div className="p-3.5 bg-[#0e101c] border-l-2 border-indigo-500 border-t border-r border-b border-indigo-950/60 rounded-r-lg text-neutral-200 shadow-sm">
+              <div className="text-[10px] font-mono uppercase text-indigo-400 font-bold mb-1.5 flex items-center gap-1.5">
+                <span>Autonomous Capacity & External Transition</span>
+              </div>
+              <p className="text-xs leading-relaxed text-neutral-200 font-mono">
+                {dossier.strategicExpansionVector}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Section: Cosmic Alignments */}
         {dossier && (

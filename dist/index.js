@@ -1,12 +1,20 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const dotenv_1 = __importDefault(require("dotenv"));
+require("dotenv/config");
+// -------------------------------------------------------------
+// STARTUP GUARDRAIL: Catch missing or empty GROQ_API_KEY immediately
+// -------------------------------------------------------------
+if (!process.env.GROQ_API_KEY || !process.env.GROQ_API_KEY.trim()) {
+    console.error('\n=============================================================');
+    console.error(' [FATAL STARTUP ERROR] GROQ_API_KEY is not configured!       ');
+    console.error('=============================================================');
+    console.error('A valid GROQ_API_KEY is required in environment or .env file.');
+    console.error('Please obtain an API key at https://console.groq.com and set:');
+    console.error('  GROQ_API_KEY=gsk_...\n');
+    process.exit(1);
+}
 const elegba_1 = require("./agents/elegba");
 const server_1 = require("./server");
-dotenv_1.default.config();
 async function bootstrap() {
     console.log('-------------------------------------------------------------');
     console.log('     THE SEVEN-SEAT LLM COUNCIL & REALTIME VOICE PIPELINE    ');

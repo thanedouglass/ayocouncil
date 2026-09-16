@@ -39,6 +39,7 @@ export class ChairmanSynthesizer {
       cosmicAlignments: rawSynthesis.cosmicAlignments,
       keyTensions: rawSynthesis.keyTensions,
       somaticPrescriptions: rawSynthesis.somaticPrescriptions,
+      strategicExpansionVector: rawSynthesis.strategicExpansionVector,
       rawSeatDeliberations: fanOutResult.deliberations,
       metadata: {
         totalDeliberations: fanOutResult.deliberations.length,
@@ -57,7 +58,7 @@ export class ChairmanSynthesizer {
       `[ChairmanSynthesizer] Dossier synthesized in ${synthesisLatencyMs}ms. ` +
         `Alignments: ${dossier.cosmicAlignments.length}, ` +
         `Tensions: ${dossier.keyTensions.length}, ` +
-        `Prescriptions: ${dossier.somaticPrescriptions.length}`
+        `Expansion Vector: ${dossier.strategicExpansionVector ? 'Present' : 'None'}`
     );
 
     return dossier;
@@ -79,7 +80,7 @@ export class ChairmanSynthesizer {
 
     return `
 You are the Chairman of the Seven-Seat High Council.
-A human has spoken the following prompt to the Council:
+A sovereign human thinker has presented the following inquiry:
 "${userSpeech}"
 
 Here are the independent deliberations from the seven council seats:
@@ -87,11 +88,17 @@ Here are the independent deliberations from the seven council seats:
 ${seatDossierLines}
 --------------------------------------------------
 
-Perform a master cross-examination of these philosophical outputs. Produce a clean JSON object with four exact keys:
-1. "cosmicAlignments": array of 2-3 strings representing overarching convergences, universal patterns, and meta-agreements between the seats.
-2. "keyTensions": array of 2-3 strings representing the sharpest dialectical friction and irreconcilable paradoxes between the seats (e.g. Stoic radical acceptance vs. Existential rebellion).
-3. "somaticPrescriptions": array of 2-3 strings representing immediate, physical, grounded actions the user can enact in their body or immediate environment right now.
-4. "spokenScript": a 3-4 sentence spoken response written for vocal delivery by an eloquent, compassionate, authoritative Chairman. It must directly address the user orally, weaving the alignments, tensions, and somatic action without sounding like reading bullet points.
+Perform an authoritative cross-examination of these philosophical outputs.
+STRICT ANTI-PATRONIZATION PROTOCOL:
+- Never use clinical clichés, breath-coaching ("take a deep breath", "exhale"), or condescending therapeutic soothing.
+- Treat the user as a peer and high-agency architect. Validate structural and environmental constraints without pathologizing them.
+
+Produce a clean JSON object with five exact keys:
+1. "cosmicAlignments": array of 2-3 strings representing overarching convergences and strategic consensus between the seats.
+2. "keyTensions": array of 2-3 strings representing the sharpest dialectical friction and irreconcilable paradoxes between the seats.
+3. "somaticPrescriptions": array of 2-3 strings representing immediate, tangible, material boundary actions in physical reality (NOT breathwork or mindfulness exercises).
+4. "strategicExpansionVector": a diagnostic string evaluating whether the user is suffering from structural container confinement ("outgrowing the space") versus internal friction, articulating an outward growth vector.
+5. "spokenScript": a 3-4 sentence spoken response written for vocal delivery by an eloquent, rigorous, peer-level Chairman directly addressing the user without patronization.
 `;
   }
 
@@ -103,33 +110,28 @@ Perform a master cross-examination of these philosophical outputs. Produce a cle
     cosmicAlignments: string[];
     keyTensions: string[];
     somaticPrescriptions: string[];
+    strategicExpansionVector: string;
     spokenScript: string;
   }> {
-    // Simulated/production LLM response handler
-    // In production:
-    // const completion = await openai.beta.chat.completions.parse({
-    //   model: this.chairmanModel,
-    //   messages: [{ role: 'system', content: 'You are the Chairman...' }, { role: 'user', content: prompt }],
-    //   response_format: zodResponseFormat(ChairmanSchema, 'chairman_dossier')
-    // });
-
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
           cosmicAlignments: [
-            'Every seat acknowledges that the present friction is an invitation to shed unexamined assumptions and stop delegating authority to external circumstances.',
-            'There is unanimous agreement that immediate cognitive rumination must cease in favor of direct, decisive, and bounded action.'
+            'Every seat recognizes that the present resistance is structural friction, not an internal psychological deficiency.',
+            'Unanimous agreement that passive coping strategies inside the existing perimeter will only prolong institutional decay; direct strategic action is demanded.'
           ],
           keyTensions: [
-            'Seat I (Stoic Empiricist) urges radical acceptance of externals, whereas Seat II (Existentialist) insists that acceptance without existential rebellion is bad faith.',
-            'Seat III (Cyberneticist) recommends systemic patience and feedback damping, while Seat V (Pragmatist) demands an aggressive asymmetric bet immediately.'
+            'Seat I (Stoic Empiricist) urges radical acceptance of immovable systemic physics, whereas Seat II (Existentialist) insists that acceptance without defiance concedes agency.',
+            'Seat III (Cyberneticist) emphasizes damping runaway feedback loops, while Seat V (Pragmatist) recommends immediate asymmetric external positioning.'
           ],
           somaticPrescriptions: [
-            'Plant both feet flat on the floor, exhale fully for six seconds, and write down the single highest-leverage decision you have been avoiding.',
-            'Establish an immediate physical boundary: close open browser tabs, take a 5-minute walk outside, and refrain from explaining your choice to anyone today.'
+            'Sever ambient synchrony: disconnect non-essential communication channels for four uninterrupted hours to reclaim cognitive focus.',
+            'Establish an operational perimeter: write down the single structural constraint you refuse to accommodate further, and reallocate time to sovereign build work.'
           ],
+          strategicExpansionVector:
+            'Container Confinement Detected: Your resistance is not burnout or personal failure; you have outgrown the institutional scope of your current container. Discontinue internal self-critique and begin constructing external, decoupled sovereign capacity.',
           spokenScript:
-            'The Council has completed its deliberation. Across all seven seats, there is deep agreement: the friction you feel is not a failure, but a catalyst demanding that you reclaim your agency. While our Stoic and Existentialist seats clash on whether to yield or rebel, our pragmatic consensus is clear. Take one long exhale right now, plant your feet firmly on the ground, and commit to the single smallest irreversible step you have been postponing today.'
+            'The Council has completed its cross-examination. Across all seven seats, the diagnosis converges: your friction is structural evidence that you have outgrown your current operating container, not an internal defect to be managed through passive coping. While our Stoic and Existentialist seats debate the mechanics of endurance versus defiance, the strategic imperative is unmistakable: cease expending cognitive bandwidth trying to optimize a restrictive container, and begin executing your sovereign transition immediately.'
         });
       }, 1000);
     });

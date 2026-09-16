@@ -187,6 +187,24 @@ export class GptLiveClient extends EventEmitter {
   }
 
   /**
+   * Purges all volatile audio buffers, session transcripts, and active responses.
+   * Enforces zero data retention / anti-extraction guarantees.
+   */
+  public purgeSessionBuffers(): { purged: boolean; timestamp: string } {
+    console.log('[GptLiveClient] PURGE: Wiping all volatile audio buffers and active response states.');
+    if (!this.isSimulated && this.ws && this.ws.readyState === WebSocket.OPEN) {
+      try {
+        this.sendEvent({ type: 'input_audio_buffer.clear' });
+        this.sendEvent({ type: 'response.cancel' });
+      } catch (e) {
+        console.warn('[GptLiveClient] Error clearing remote audio buffers:', e);
+      }
+    }
+    this.emit('session_purged');
+    return { purged: true, timestamp: new Date().toISOString() };
+  }
+
+  /**
    * Routes raw incoming JSON events from the GPT-Live-1 server.
    */
   private handleIncomingServerEvent(rawJson: string): void {

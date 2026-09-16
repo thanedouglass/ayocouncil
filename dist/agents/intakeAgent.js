@@ -40,9 +40,6 @@ OUTPUT FORMAT (JSON ONLY):
   "somatic_symptoms": ["string"],
   "involved_actors": ["string"]
 }`;
-const defaultGroqClient = new groq_sdk_1.default({
-    apiKey: process.env.GROQ_API_KEY || ''
-});
 /**
  * Processes an intake conversational turn under a strict 2-turn ceiling state machine.
  */
@@ -86,26 +83,45 @@ async function processIntakeTurn(sessionState, userUtterance, options = {}) {
  */
 async function compileDiagnosticSchema(history, options = {}) {
     const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-    const model = options.model || 'llama-3.1-8b-instant';
+    const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'llama-3.1-8b-instant';
+    const modelsToTry = [
+        preferredModel,
+        ...['llama-3.1-8b-instant', 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b'].filter((m) => m !== preferredModel)
+    ];
     if (!apiKey) {
         return simulateCompiledSchema(history);
     }
-    const client = options.apiKey ? new groq_sdk_1.default({ apiKey: options.apiKey }) : defaultGroqClient;
+    const client = new groq_sdk_1.default({ apiKey });
     const transcriptText = history.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
     try {
-        const completion = await client.chat.completions.create({
-            model,
-            temperature: 0.1,
-            response_format: { type: 'json_object' },
-            messages: [
-                { role: 'system', content: exports.COMPILATION_SYSTEM_PROMPT },
-                {
-                    role: 'user',
-                    content: `Extract and compile the diagnostic schema from this intake transcript:\n\n${transcriptText}`
+        let raw = '';
+        for (const m of modelsToTry) {
+            try {
+                const completion = await client.chat.completions.create({
+                    model: m,
+                    temperature: 0.1,
+                    max_tokens: 150,
+                    response_format: { type: 'json_object' },
+                    messages: [
+                        { role: 'system', content: exports.COMPILATION_SYSTEM_PROMPT },
+                        {
+                            role: 'user',
+                            content: `Extract and compile the diagnostic schema from this intake transcript:\n\n${transcriptText}`
+                        }
+                    ]
+                });
+                raw = completion.choices[0]?.message?.content?.trim() || '';
+                if (raw)
+                    break;
+            }
+            catch (err) {
+                if (err?.status === 404) {
+                    console.warn(`[IntakeAgent] Model '${m}' not found on Groq (404), trying fallback...`);
+                    continue;
                 }
-            ]
-        });
-        const raw = completion.choices[0]?.message?.content?.trim();
+                throw err;
+            }
+        }
         if (!raw)
             throw new Error('Empty compilation output from Groq');
         const parsed = JSON.parse(raw);
@@ -125,27 +141,44 @@ async function compileDiagnosticSchema(history, options = {}) {
  */
 async function generateAustereQuestion(history, options = {}) {
     const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-    const model = options.model || 'llama-3.1-8b-instant';
+    const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'llama-3.1-8b-instant';
+    const modelsToTry = [
+        preferredModel,
+        ...['llama-3.1-8b-instant', 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b'].filter((m) => m !== preferredModel)
+    ];
     if (!apiKey) {
         return 'Identify the exact physical sensation in your body right now and name the external party exerting pressure on this decision.';
     }
-    const client = options.apiKey ? new groq_sdk_1.default({ apiKey: options.apiKey }) : defaultGroqClient;
+    const client = new groq_sdk_1.default({ apiKey });
     const transcriptText = history.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
     try {
-        const completion = await client.chat.completions.create({
-            model,
-            temperature: 0.2,
-            max_tokens: 80,
-            messages: [
-                { role: 'system', content: exports.AUSTERE_INTAKE_PROMPT },
-                {
-                    role: 'user',
-                    content: `Transcript:\n${transcriptText}\n\nAsk exactly ONE unadorned clinical question isolating missing somatic symptoms or external actors.`
+        for (const m of modelsToTry) {
+            try {
+                const completion = await client.chat.completions.create({
+                    model: m,
+                    temperature: 0.2,
+                    max_tokens: 80,
+                    messages: [
+                        { role: 'system', content: exports.AUSTERE_INTAKE_PROMPT },
+                        {
+                            role: 'user',
+                            content: `Transcript:\n${transcriptText}\n\nAsk exactly ONE unadorned clinical question isolating missing somatic symptoms or external actors.`
+                        }
+                    ]
+                });
+                const q = completion.choices[0]?.message?.content?.trim();
+                if (q)
+                    return q;
+            }
+            catch (err) {
+                if (err?.status === 404) {
+                    console.warn(`[IntakeAgent] Model '${m}' not found on Groq (404), trying fallback...`);
+                    continue;
                 }
-            ]
-        });
-        return (completion.choices[0]?.message?.content?.trim() ||
-            'State where this conflict registers in your physical body and identify the primary counter-party.');
+                throw err;
+            }
+        }
+        return 'State where this conflict registers in your physical body and identify the primary counter-party.';
     }
     catch (err) {
         return 'State where this conflict registers in your physical body and identify the primary counter-party.';

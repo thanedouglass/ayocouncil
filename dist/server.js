@@ -37,8 +37,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createServer = createServer;
+require("dotenv/config");
+// -------------------------------------------------------------
+// STARTUP GUARDRAIL: Verify GROQ_API_KEY before importing services
+// -------------------------------------------------------------
+if (!process.env.GROQ_API_KEY || !process.env.GROQ_API_KEY.trim()) {
+    console.error('\n=============================================================');
+    console.error(' [FATAL STARTUP ERROR] GROQ_API_KEY is not configured!       ');
+    console.error('=============================================================');
+    console.error('A valid GROQ_API_KEY is required in environment or .env file.');
+    console.error('Please define GROQ_API_KEY before starting the AyoCouncil server.\n');
+    process.exit(1);
+}
 const cors_1 = __importDefault(require("cors"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const ws_1 = __importStar(require("ws"));
@@ -47,7 +58,6 @@ const intakeAgent_1 = require("./agents/intakeAgent");
 const triageEngine_1 = require("./middleware/triageEngine");
 const councilPipeline_1 = require("./orchestrator/councilPipeline");
 const gptLiveClient_1 = require("./services/realtime/gptLiveClient");
-dotenv_1.default.config();
 function createServer(port = 8080) {
     const app = (0, express_1.default)();
     app.use((0, cors_1.default)());
@@ -236,6 +246,26 @@ ${(dossier.somaticPrescriptions || []).map((p, i) => `${i + 1}. ${p}`).join('\n'
             res.status(500).json({ error: err.message || 'Speech handoff failed' });
         }
     });
+    // Zero-Retention Ephemeral Session Purge Endpoint
+    app.post('/api/session/purge', (_req, res) => {
+        try {
+            const purgeResult = pipeline.purgeVolatileMemory();
+            broadcastWebSocket({
+                type: 'session_purged',
+                timestamp: purgeResult.timestamp,
+                memoryBytesCleared: purgeResult.memoryBytesCleared
+            });
+            res.json({
+                success: true,
+                message: 'Volatile session buffers purged. Zero data retained.',
+                ...purgeResult
+            });
+        }
+        catch (err) {
+            console.error('[API /api/session/purge] Error:', err);
+            res.status(500).json({ error: err.message || 'Session purge failed' });
+        }
+    });
     // Real-time WebSocket connection
     wss.on('connection', (clientWs) => {
         console.log('[Server] WebSocket client connected to real-time audio channel.');
@@ -251,6 +281,14 @@ ${(dossier.somaticPrescriptions || []).map((p, i) => `${i + 1}. ${p}`).join('\n'
                     }
                     else if (parsed.type === 'commit_audio') {
                         liveClient.commitAudioBuffer();
+                    }
+                    else if (parsed.type === 'purge_session') {
+                        const purgeResult = pipeline.purgeVolatileMemory();
+                        broadcastWebSocket({
+                            type: 'session_purged',
+                            timestamp: purgeResult.timestamp,
+                            memoryBytesCleared: purgeResult.memoryBytesCleared
+                        });
                     }
                     else if (parsed.type === 'triage_check' && parsed.text) {
                         const triage = await (0, triageEngine_1.evaluateTriage)(parsed.text);

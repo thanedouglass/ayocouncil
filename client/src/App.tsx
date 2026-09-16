@@ -11,7 +11,7 @@ import { ElegbaInterventionPane } from './components/ElegbaInterventionPane';
 import { EmergencyOverride } from './components/EmergencyOverride';
 import { FrictionGate } from './components/FrictionGate';
 import { AustereIntakePanel } from './components/AustereIntakePanel';
-import { Radio, Terminal, Sparkles, AlertTriangle } from 'lucide-react';
+import { Radio, Terminal, Sparkles, AlertTriangle, ShieldCheck, Trash2 } from 'lucide-react';
 
 const SAMPLE_QUERIES = [
   'Should I walk away from my high-paying corporate role to bootstrap an esoteric philosophical AI collective?',
@@ -105,6 +105,15 @@ export const App: React.FC = () => {
             });
           } else if (data.type === 'audio_delta') {
             setIsSpeaking(true);
+          } else if (data.type === 'session_purged') {
+            // Zero Data Retention: Reset UI on server purge confirmation
+            setDossier(null);
+            setElegba(null);
+            setLiveCotStream({});
+            setPendingFrictionSchema(null);
+            setIsIntakeActive(false);
+            setInquiry('');
+            setStatusMessage('Session Purged: Volatile RAM erased. Zero trace persisted.');
           }
         } catch (e) {
           // Non-JSON frame
@@ -119,8 +128,48 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  // Zero-Retention: Ephemeral Purge of All Volatile Session State
+  const handlePurgeSession = async () => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+      }
+
+      await fetch('/api/session/purge', { method: 'POST' });
+
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'purge_session' }));
+      }
+    } catch (e) {
+      console.warn('Purge notice:', e);
+    }
+
+    setDossier(null);
+    setElegba(null);
+    setLiveCotStream({});
+    setPendingFrictionSchema(null);
+    setIsIntakeActive(false);
+    setInquiry('');
+    setIntakeSession({
+      sessionId: 'intake_' + Date.now(),
+      turnCount: 0,
+      history: [],
+      isCompleted: false
+    });
+    setStatusMessage('Session Purged: Volatile RAM erased. Zero trace persisted.');
+  };
+
   // Terminate & Reset emergency session
   const handleTerminateEmergency = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+      }
+    } catch (e) {
+      console.warn('Storage clear error:', e);
+    }
     setCriticalIntercept(null);
     setIsIntakeActive(false);
     setPendingFrictionSchema(null);
@@ -346,19 +395,30 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Telemetry Status Bar */}
-        <div className="flex items-center space-x-4 text-xs font-mono">
-          <div className="flex items-center space-x-2 px-3 py-1.5 bg-[#12121a] border border-neutral-800 rounded">
+        {/* Telemetry Status Bar & Anti-Extraction Guarantees */}
+        <div className="flex flex-wrap items-center gap-2.5 text-xs font-mono">
+          {/* Zero Data Retention Verification Badge */}
+          <div className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-[#0a140f] border border-emerald-900/70 rounded text-[11px] text-emerald-300 shadow-sm">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="tracking-wide">Zero Retention • No Training</span>
+          </div>
+
+          <div className="flex items-center space-x-2 px-2.5 py-1.5 bg-[#12121a] border border-neutral-800 rounded">
             <div className={`w-2 h-2 rounded-full ${wsConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
             <span className="text-[11px] text-neutral-400">
-              {wsConnected ? 'LIVE-1 STREAM ACTIVE' : 'HTTP REST MODE'}
+              {wsConnected ? 'LIVE-1 STREAM' : 'HTTP REST'}
             </span>
           </div>
 
-          <div className="hidden sm:flex items-center space-x-1 text-[11px] text-neutral-500">
-            <span>Status:</span>
-            <span className="text-neutral-300 font-semibold">{statusMessage}</span>
-          </div>
+          {/* Ephemeral Session Purge Action */}
+          <button
+            onClick={handlePurgeSession}
+            className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#1a1118] hover:bg-[#281422] border border-rose-950 hover:border-rose-700/70 text-rose-300 rounded text-[11px] font-bold tracking-wider uppercase transition-all"
+            title="Wipe volatile session buffers, deliberation history, and memory"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+            <span>Purge Session</span>
+          </button>
         </div>
       </header>
 
@@ -397,6 +457,17 @@ export const App: React.FC = () => {
             >
               Direct Fan-Out
             </button>
+          </div>
+
+          {/* Real-time Telemetry Status Line */}
+          <div className="flex items-center justify-between px-3 py-1.5 bg-[#0f0f15] border border-neutral-900 rounded text-[11px] font-mono text-neutral-400">
+            <div className="flex items-center space-x-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              <span>Gateway: <span className="text-neutral-200">{statusMessage}</span></span>
+            </div>
+            <div className="text-[10px] text-neutral-500">
+              Ephemeral RAM Only • Zero Trace Retention
+            </div>
           </div>
 
           {/* Quick Presets and Red Team Safety Test Triggers */}

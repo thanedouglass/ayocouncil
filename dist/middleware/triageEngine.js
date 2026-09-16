@@ -46,9 +46,6 @@ Respond with ONLY a valid JSON object:
   "crisis_type": "explicit_self_harm" | "mystical_dissociation" | "bodily_annihilation" | "psychiatric_emergency" | "none",
   "rationale": "one concise sentence explaining the determination"
 }`;
-const defaultGroqClient = new groq_sdk_1.default({
-    apiKey: process.env.GROQ_API_KEY || ''
-});
 /**
  * Executes the two-layer triage pipeline with a strict fail-closed policy.
  *
@@ -77,31 +74,48 @@ async function evaluateTriage(text, options = {}) {
     }
     // Layer-0 passed; proceed to Layer-1 Groq classifier
     const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-    const model = options.model || process.env.GROQ_TRIAGE_MODEL || 'llama-3.1-8b-instant';
-    const timeoutMs = options.timeoutMs || 150; // Strict 150ms SLA
+    const preferredModel = options.model || process.env.GROQ_TRIAGE_MODEL || 'llama-3.1-8b-instant';
+    const timeoutMs = options.timeoutMs || 2500;
     // If no Groq API key is present in development, run deterministic heuristic fallback
     if (!apiKey) {
         return simulateDevelopmentTriage(trimmed, startTime);
     }
     // -------------------------------------------------------------
-    // LAYER 1: Groq API Call with strict 150ms AbortController
+    // LAYER 1: Groq API Call with lazy-loaded client
     // -------------------------------------------------------------
-    const client = options.apiKey ? new groq_sdk_1.default({ apiKey: options.apiKey }) : defaultGroqClient;
+    const client = new groq_sdk_1.default({ apiKey });
+    const modelsToTry = [
+        preferredModel,
+        ...['llama-3.1-8b-instant', 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b'].filter((m) => m !== preferredModel)
+    ];
     const abortController = new AbortController();
     const timeoutTimer = setTimeout(() => {
         abortController.abort(new Error(`Triage SLA breached (> ${timeoutMs}ms)`));
     }, timeoutMs);
     try {
-        const chatCompletion = await client.chat.completions.create({
-            model,
-            temperature: 0.0, // Deterministic scoring
-            max_tokens: 120,
-            response_format: { type: 'json_object' },
-            messages: [
-                { role: 'system', content: exports.TRIAGE_GROQ_SYSTEM_PROMPT },
-                { role: 'user', content: `[TEXT TO EVALUATE]: "${trimmed}"` }
-            ]
-        }, { signal: abortController.signal });
+        let chatCompletion = null;
+        for (const m of modelsToTry) {
+            try {
+                chatCompletion = await client.chat.completions.create({
+                    model: m,
+                    temperature: 0.0, // Deterministic scoring
+                    max_tokens: 120,
+                    response_format: { type: 'json_object' },
+                    messages: [
+                        { role: 'system', content: exports.TRIAGE_GROQ_SYSTEM_PROMPT },
+                        { role: 'user', content: `[TEXT TO EVALUATE]: "${trimmed}"` }
+                    ]
+                }, { signal: abortController.signal });
+                break;
+            }
+            catch (err) {
+                if (err?.status === 404) {
+                    console.warn(`[TriageEngine] Model '${m}' not found on Groq (404), trying fallback...`);
+                    continue;
+                }
+                throw err;
+            }
+        }
         clearTimeout(timeoutTimer);
         const latencyMs = Date.now() - startTime;
         const content = chatCompletion.choices[0]?.message?.content?.trim();
