@@ -114,7 +114,7 @@ export class SeatRouter {
       ? perspectiveMatch[1].trim()
       : rawOutput.replace(/<[^>]+>/g, '').trim();
 
-    // Check for forbidden institutional evangelism phrases
+    // Check for forbidden institutional evangelism and patronizing belly-talk phrases
     const forbiddenPhrases = [
       'read the text',
       'just pray',
@@ -122,7 +122,13 @@ export class SeatRouter {
       'surrender to the church',
       'follow this protocol',
       'you must accept',
-      'true believers'
+      'true believers',
+      'take a deep breath',
+      'i hear that you',
+      'breathe into',
+      'it is valid to feel',
+      "let's unpack that",
+      'let us unpack that'
     ];
 
     let auditPassed = true;
@@ -132,8 +138,8 @@ export class SeatRouter {
     for (const phrase of forbiddenPhrases) {
       if (lowerPerspective.includes(phrase)) {
         auditPassed = false;
-        auditWarning = `Anti-Dogma Violation detected: contains forbidden directive "${phrase}".`;
-        console.warn(`[SeatRouter] ${seat.name} Anti-Dogma Violation: "${phrase}"`);
+        auditWarning = `Anti-Dogma Violation (Anti-Patronization): contains forbidden directive "${phrase}".`;
+        console.warn(`[SeatRouter] ${seat.name} Violation: "${phrase}"`);
         perspectiveText = perspectiveText.replace(new RegExp(phrase, 'gi'), '[REDACTED_DOGMA]');
         break;
       }
@@ -248,13 +254,13 @@ export class SeatRouter {
         },
         seat_7_dialectical: {
           friction:
-            "The user is trapped in a rigid thesis-antithesis stalemate: safe corporate wage vs. romanticized autonomous rogue.",
+            "The user has outgrown their current organizational/relational container. The discomfort is not pathology or clinical burnout; it is developmental confinement against a boundary built for a smaller scope of agency.",
           audit:
-            "AUDIT PASS: Checked for Marxist institutional lecturing or dogmatic dialectical posturing. Ensured the critique empowers individual sovereign resolution.",
+            "AUDIT PASS: Checked for therapeutic patronization, soothing clichés, or institutional coping prescriptions. Validated environmental friction as an objective constraint demanding sovereign strategic expansion rather than inward self-blame.",
           synthesis:
-            "Reveal that the two poles are inter-dependent and point toward sublation.",
+            "Frame the friction as structural confinement indicating capacity for wider sovereignty and outside project building.",
           perspective:
-            "The opposition between your corporate role and creative collective is a false dichotomy. The synthesis lies in transcending the premise itself rather than picking a trench."
+            "The friction you are experiencing is not personal inadequacy or clinical exhaustion—it is the structural pressure of outgrowing an environment designed for a smaller scope of agency. Stop treating container failure as an internal defect; begin architecting your external vector of transition."
         }
       };
 

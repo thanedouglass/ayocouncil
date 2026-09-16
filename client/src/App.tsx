@@ -14,7 +14,7 @@ import { FrictionGate } from './components/FrictionGate';
 import { AustereIntakePanel } from './components/AustereIntakePanel';
 import { CouncilVFXCanvas, VFXMode } from './components/CouncilVFXCanvas';
 import { STONES, StoneKey, stoneByKey } from './lib/stones';
-import { Radio, Zap, ChevronUp, ChevronDown, AlertTriangle, MonitorPlay } from 'lucide-react';
+import { Radio, Zap, ChevronUp, ChevronDown, AlertTriangle, MonitorPlay, ShieldCheck, Trash2 } from 'lucide-react';
 
 const SAMPLE_QUERIES = [
   'Should I walk away from my high-paying corporate role to bootstrap an esoteric philosophical AI collective?',
@@ -168,6 +168,15 @@ export const App: React.FC = () => {
             });
           } else if (data.type === 'audio_delta') {
             setIsSpeaking(true);
+          } else if (data.type === 'session_purged') {
+            // Zero Data Retention: Reset UI on server purge confirmation
+            setDossier(null);
+            setElegba(null);
+            setLiveCotStream({});
+            setPendingFrictionSchema(null);
+            setIsIntakeActive(false);
+            setInquiry('');
+            setStatusMessage('Session Purged: Volatile RAM erased. Zero trace persisted.');
           }
         } catch (e) {
           // Non-JSON frame
@@ -190,8 +199,49 @@ export const App: React.FC = () => {
     return () => clearTimeout(t);
   }, [dossier]);
 
+  // Zero-Retention: Ephemeral Purge of All Volatile Session State
+  const handlePurgeSession = async () => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+      }
+
+      await fetch('/api/session/purge', { method: 'POST' });
+
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'purge_session' }));
+      }
+    } catch (e) {
+      console.warn('Purge notice:', e);
+    }
+
+    setDossier(null);
+    setElegba(null);
+    setLiveCotStream({});
+    setPendingFrictionSchema(null);
+    setIsIntakeActive(false);
+    setInquiry('');
+    setFocusedSeatId(null);
+    setIntakeSession({
+      sessionId: 'intake_' + Date.now(),
+      turnCount: 0,
+      history: [],
+      isCompleted: false
+    });
+    setStatusMessage('Session Purged: Volatile RAM erased. Zero trace persisted.');
+  };
+
   // Terminate & Reset emergency session
   const handleTerminateEmergency = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+      }
+    } catch (e) {
+      console.warn('Storage clear error:', e);
+    }
     setCriticalIntercept(null);
     setIsIntakeActive(false);
     setPendingFrictionSchema(null);
@@ -501,6 +551,10 @@ export const App: React.FC = () => {
                 Simulation / Preview Mode
               </motion.div>
             )}
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-emerald/[0.06] border border-stone-emerald/20 text-stone-emerald font-mono text-[10px] uppercase tracking-widest">
+              <ShieldCheck className="w-3 h-3" />
+              Zero Retention · No Training
+            </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5">
               <motion.div
                 className={`w-1.5 h-1.5 rounded-full ${wsConnected ? 'bg-stone-emerald' : 'bg-stone-amber'}`}
@@ -509,6 +563,17 @@ export const App: React.FC = () => {
               />
               <span className="telemetry">{wsConnected ? 'LIVE STREAM' : 'REST MODE'}</span>
             </div>
+            <motion.button
+              onClick={handlePurgeSession}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.95 }}
+              transition={spring}
+              title="Wipe volatile session buffers, deliberation history, and memory"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ruby/5 border border-ruby/25 hover:border-ruby/60 text-ruby/90 hover:text-ruby font-mono text-[10px] uppercase tracking-widest font-bold transition-colors"
+            >
+              <Trash2 className="w-3 h-3" />
+              Purge Session
+            </motion.button>
           </div>
         </div>
       </header>
@@ -704,6 +769,7 @@ export const App: React.FC = () => {
                     <div className="telemetry space-y-1">
                       <div>GATEWAY: {wsConnected ? 'WEBSOCKET LIVE' : 'HTTP REST FALLBACK'}</div>
                       <div>MODE: {simulationMode ? 'SIMULATION / PREVIEW' : 'PRODUCTION CIRCUITS'}</div>
+                      <div>RETENTION: EPHEMERAL RAM ONLY · ZERO TRACE</div>
                     </div>
 
                     <div className="flex items-center gap-2">

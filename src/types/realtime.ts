@@ -40,6 +40,9 @@ export type RealtimeClientEvent =
       type: 'input_audio_buffer.commit';
     }
   | {
+      type: 'input_audio_buffer.clear';
+    }
+  | {
       type: 'conversation.item.create';
       item: {
         type: 'message';

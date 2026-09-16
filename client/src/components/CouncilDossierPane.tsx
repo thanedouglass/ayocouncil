@@ -9,7 +9,8 @@ import {
   Footprints,
   Volume2,
   ChevronDown,
-  ShieldCheck
+  ShieldCheck,
+  ArrowUpRight
 } from 'lucide-react';
 
 interface Props {
@@ -177,6 +178,31 @@ export const CouncilDossierPane: React.FC<Props> = ({
           liveCotStream={liveCotStream}
           isGenerating={isLoading}
         />
+
+        {/* Strategic Expansion Vector — container diagnosis from the synthesis */}
+        {dossier?.strategicExpansionVector && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={spring}
+            className="space-y-2.5"
+          >
+            <div className="flex items-center justify-between">
+              <span className="telemetry uppercase text-indigo-300/90 flex items-center gap-2">
+                <ArrowUpRight className="w-3.5 h-3.5 text-indigo-400/80" />
+                Strategic expansion vector · outgrowing the space
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 font-mono text-[9px] font-semibold tracking-widest uppercase">
+                Container diagnosis
+              </span>
+            </div>
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 border-l-2 border-l-indigo-400/60">
+              <p className="font-sans text-sm text-gray-200 leading-relaxed">
+                {dossier.strategicExpansionVector}
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {dossier && (
           <>

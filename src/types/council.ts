@@ -51,6 +51,7 @@ export interface ChairmanDossier {
   cosmicAlignments: string[];
   keyTensions: string[];
   somaticPrescriptions: string[];
+  strategicExpansionVector?: string;
   rawSeatDeliberations: SeatDeliberation[];
   metadata: {
     totalDeliberations: number;

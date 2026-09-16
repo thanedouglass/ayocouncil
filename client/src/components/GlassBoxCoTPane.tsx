@@ -23,7 +23,7 @@ const SEAT_TABS = [
   { id: 'seat_4_mystic_cosmologist', label: 'IV · Mystic' },
   { id: 'seat_5_pragmatist', label: 'V · Pragmatic' },
   { id: 'seat_6_psychoanalytic', label: 'VI · Archetypal' },
-  { id: 'seat_7_dialectical', label: 'VII · Dialectical' }
+  { id: 'seat_7_dialectical', label: 'VII · Dialectical & Growth' }
 ];
 
 const spring = { type: 'spring', stiffness: 260, damping: 28 } as const;

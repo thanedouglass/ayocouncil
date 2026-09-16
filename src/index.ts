@@ -1,8 +1,20 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
+
+// -------------------------------------------------------------
+// STARTUP GUARDRAIL: Catch missing or empty GROQ_API_KEY immediately
+// -------------------------------------------------------------
+if (!process.env.GROQ_API_KEY || !process.env.GROQ_API_KEY.trim()) {
+  console.error('\n=============================================================');
+  console.error(' [FATAL STARTUP ERROR] GROQ_API_KEY is not configured!       ');
+  console.error('=============================================================');
+  console.error('A valid GROQ_API_KEY is required in environment or .env file.');
+  console.error('Please obtain an API key at https://console.groq.com and set:');
+  console.error('  GROQ_API_KEY=gsk_...\n');
+  process.exit(1);
+}
+
 import { invokeElegba } from './agents/elegba';
 import { createServer } from './server';
-
-dotenv.config();
 
 async function bootstrap() {
   console.log('-------------------------------------------------------------');

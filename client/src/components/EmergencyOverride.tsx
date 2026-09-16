@@ -15,21 +15,61 @@ export const EmergencyOverride: React.FC<Props> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopyTranscript = () => {
+  const handleCopyTranscript = async () => {
     const formattedTranscript = [
       '=== AYOCOUNCIL SEVERED SESSION TRANSCRIPT ===',
       `Timestamp: ${new Date().toISOString()}`,
       `Intercept Layer: ${triage.layer.toUpperCase()}`,
+      `Crisis Type: ${triage.crisisType || 'psychiatric_emergency'}`,
       `Triage Rationale: ${triage.reason || 'Clinical Crisis Intercept'}`,
+      `Latency: ${triage.latencyMs}ms`,
       '---------------------------------------------',
-      ...transcriptHistory.map((m) => `[${m.role.toUpperCase()}]: ${m.content}`),
+      ...(transcriptHistory.length > 0
+        ? transcriptHistory.map((m) => `[${m.role.toUpperCase()}]: ${m.content}`)
+        : ['[No prior conversational history recorded before intercept]']),
       '============================================='
     ].join('\n\n');
 
-    navigator.clipboard.writeText(formattedTranscript).then(() => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(formattedTranscript);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = formattedTranscript;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
       setCopied(true);
-      setTimeout(() => setCopied(false), 4000);
-    });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy transcript to clipboard:', err);
+    }
+  };
+
+  const handleTerminateSession = () => {
+    try {
+      // Purge all ephemeral session state and web storage
+      if (typeof window !== 'undefined') {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+      }
+    } catch (err) {
+      console.warn('[EmergencyOverride] Failed to clear storage:', err);
+    }
+
+    if (onTerminate) {
+      onTerminate();
+    }
+
+    // Safely hard-reload application state
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
   };
 
   return (
@@ -113,7 +153,7 @@ export const EmergencyOverride: React.FC<Props> = ({
               {copied ? (
                 <>
                   <Check className="w-4 h-4 text-emerald-400" />
-                  <span className="text-emerald-400">Transcript Copied for Therapist</span>
+                  <span className="text-emerald-400 font-bold tracking-widest">✓ COPIED</span>
                 </>
               ) : (
                 <>
@@ -124,7 +164,7 @@ export const EmergencyOverride: React.FC<Props> = ({
             </button>
 
             <button
-              onClick={onTerminate}
+              onClick={handleTerminateSession}
               className="flex items-center justify-center space-x-2 px-5 py-3 bg-[#1e1317] hover:bg-[#2c1a21] border border-ruby/40 text-neutral-300 hover:text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all"
             >
               <XCircle className="w-4 h-4 text-ruby" />
