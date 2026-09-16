@@ -534,8 +534,11 @@ export const App: React.FC = () => {
             </div>
             <div>
               <div className="font-sans text-sm font-semibold tracking-wide text-gray-100">
-                AyoCouncil <span className="text-flare font-mono">//</span>{' '}
-                <span className="text-gray-400 font-normal">Sovereign Psychic Terminal</span>
+                IO Council <span className="text-flare font-mono">//</span>{' '}
+                <span className="text-gray-400 font-normal">Peer-to-peer counsel for sovereign minds</span>
+              </div>
+              <div className="telemetry normal-case tracking-normal">
+                Deliberation without de-platforming your agency.
               </div>
             </div>
           </div>

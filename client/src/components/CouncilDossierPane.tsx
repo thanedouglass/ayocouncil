@@ -196,7 +196,10 @@ export const CouncilDossierPane: React.FC<Props> = ({
                 Container diagnosis
               </span>
             </div>
-            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 border-l-2 border-l-indigo-400/60">
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 border-l-2 border-l-indigo-400/60 space-y-2.5">
+              <p className="font-sans text-sm italic text-indigo-200/90 leading-relaxed pb-2.5 border-b border-white/5">
+                “When you outgrow the container, stop fighting the walls—build the next horizon.”
+              </p>
               <p className="font-sans text-sm text-gray-200 leading-relaxed">
                 {dossier.strategicExpansionVector}
               </p>
