@@ -32,10 +32,13 @@ export interface ElegbaOptions {
  * Production-tier model fallback sequence for the Elegba Protocol.
  */
 export const ELEGBA_MODEL_FALLBACKS = [
+  'groq/compound-mini',
+  'qwen/qwen3.8-27b',
+  'groq/compound',
+  'openai/gpt-oss-120b',
   'llama-3.1-8b-instant',
   'llama3-70b-8192',
-  'llama-3.3-70b-versatile',
-  'qwen/qwen3.8-27b'
+  'llama-3.3-70b-versatile'
 ];
 
 /**
@@ -63,7 +66,7 @@ export async function invokeElegba(
     // Lazy-load the Groq client inside invokeElegba rather than at module evaluation time
     const client = new Groq({ apiKey });
 
-    const primaryModel = options.model || process.env.GROQ_ELEGBA_MODEL || 'llama-3.1-8b-instant';
+    const primaryModel = options.model || process.env.GROQ_ELEGBA_MODEL || 'groq/compound-mini';
     const modelsToTry = [
       primaryModel,
       ...ELEGBA_MODEL_FALLBACKS.filter((m) => m !== primaryModel)

@@ -84,7 +84,7 @@ export async function processIntakeTurn(
   options: IntakeAgentOptions = {}
 ): Promise<IntakeTurnResult> {
   const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-  const model = options.model || process.env.GROQ_INTAKE_MODEL || 'llama-3.1-8b-instant';
+  const model = options.model || process.env.GROQ_INTAKE_MODEL || 'qwen/qwen3.8-27b';
   const timeoutMs = options.timeoutMs || 3000;
 
   // Append user's message to session history
@@ -134,10 +134,10 @@ export async function compileDiagnosticSchema(
   options: IntakeAgentOptions = {}
 ): Promise<CompiledDiagnosticSchema> {
   const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-  const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'llama-3.1-8b-instant';
+  const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'qwen/qwen3.8-27b';
   const modelsToTry = [
     preferredModel,
-    ...['llama-3.1-8b-instant', 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b'].filter((m) => m !== preferredModel)
+    ...['qwen/qwen3.8-27b', 'groq/compound-mini', 'openai/gpt-oss-120b', 'llama-3.1-8b-instant'].filter((m) => m !== preferredModel)
   ];
 
   if (!apiKey) {
@@ -197,10 +197,10 @@ async function generateAustereQuestion(
   options: IntakeAgentOptions = {}
 ): Promise<string> {
   const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-  const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'llama-3.1-8b-instant';
+  const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'qwen/qwen3.8-27b';
   const modelsToTry = [
     preferredModel,
-    ...['llama-3.1-8b-instant', 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b'].filter((m) => m !== preferredModel)
+    ...['qwen/qwen3.8-27b', 'groq/compound-mini', 'openai/gpt-oss-120b', 'llama-3.1-8b-instant'].filter((m) => m !== preferredModel)
   ];
 
   if (!apiKey) {

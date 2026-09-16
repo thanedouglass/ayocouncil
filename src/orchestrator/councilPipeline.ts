@@ -1,11 +1,13 @@
 import { EventEmitter } from 'events';
+import { evaluateTriage, TriageResult } from '../middleware/triageEngine';
 import { CouncilFanOut } from '../services/council/councilFanOut';
 import { GptLiveClient } from '../services/realtime/gptLiveClient';
 import { ChairmanSynthesizer } from '../services/synthesis/chairmanSynthesizer';
-import { ChairmanDossier } from '../types/council';
+import { ChairmanDossier, ReachAuditResult } from '../types/council';
 
 export interface PipelineEvents {
   council_started: (userSpeech: string) => void;
+  triage_intercept: (triage: TriageResult) => void;
   cot_delta: (event: {
     seatId: string;
     seatName: string;
@@ -14,6 +16,7 @@ export interface PipelineEvents {
     fullThought?: string;
   }) => void;
   fan_out_completed: (result: any) => void;
+  reach_audit: (audit: ReachAuditResult) => void;
   dossier_synthesized: (dossier: ChairmanDossier) => void;
   voice_handoff_started: (script: string) => void;
   pipeline_completed: (dossier: ChairmanDossier) => void;
@@ -91,6 +94,36 @@ export class CouncilPipeline extends EventEmitter {
   }
 
   /**
+   * End-to-end processing of a user inquiry:
+   * 1. Evaluates two-layer crisis triage gatekeeping (Layer-0 Regex & Layer-1 Groq classifier)
+   * 2. If flagged as crisis: immediately intercepts turn without invoking Council seats
+   * 3. If cleared (TRIAGE_CLEARED): conducts full 7-seat deliberation fan-out and Chairman synthesis
+   */
+  public async processInquiry(userSpeech: string): Promise<{
+    triage: TriageResult;
+    criticalIntercept: boolean;
+    dossier?: ChairmanDossier;
+  }> {
+    const triage = await evaluateTriage(userSpeech);
+
+    if (triage.isCrisis) {
+      console.warn(`[CouncilPipeline] CRITICAL_INTERCEPT triggered during inquiry: ${triage.reason}`);
+      this.emit('triage_intercept', triage);
+      return {
+        triage,
+        criticalIntercept: true
+      };
+    }
+
+    const dossier = await this.executeTurn(userSpeech);
+    return {
+      triage,
+      criticalIntercept: false,
+      dossier
+    };
+  }
+
+  /**
    * Executes a full round of council deliberation for a given user speech input.
    */
   public async executeTurn(userSpeech: string): Promise<ChairmanDossier> {
@@ -108,6 +141,9 @@ export class CouncilPipeline extends EventEmitter {
 
       // STEP 3: Cross-Examination / Synthesis Layer (Generates Chairman Dossier)
       const dossier = await this.synthesizer.synthesizeDossier(userSpeech, fanOutResult);
+      if (dossier.reachAudit) {
+        this.emit('reach_audit', dossier.reachAudit);
+      }
       this.emit('dossier_synthesized', dossier);
 
       // STEP 4: Voice Hand-off back to GPT-Live-1

@@ -33,6 +33,12 @@ async function bootstrap() {
 
   await pipeline.initialize();
 
+  // In production or Fly.io environments, skip startup demo deliberation to preserve tokens & provide immediate readiness
+  if (process.env.NODE_ENV === 'production' || process.env.FLY_APP_NAME || process.env.SKIP_DEMO === 'true') {
+    console.log('[AyoCouncil Server] Production gateway ready for live HTTP & WebSocket traffic.\n');
+    return;
+  }
+
   // Demonstration / Smoke-Test:
   const testSpokenQuery =
     'I feel paralyzed choosing between keeping my high-paying corporate engineering role or walking away to bootstrap an esoteric philosophical AI collective. What should I do?';

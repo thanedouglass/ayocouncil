@@ -1,3 +1,4 @@
+import Groq from 'groq-sdk';
 import { CouncilSeatConfig, CotReasoningSteps, SeatDeliberation } from '../../types/council';
 
 export type CotDeltaCallback = (event: {
@@ -105,7 +106,7 @@ export class SeatRouter {
     const step1Match = rawOutput.match(/<thought_step_1_friction>([\s\S]*?)<\/thought_step_1_friction>/i);
     const step2Match = rawOutput.match(/<thought_step_2_anti_dogma_audit>([\s\S]*?)<\/thought_step_2_anti_dogma_audit>/i);
     const step3Match = rawOutput.match(/<thought_step_3_synthesis>([\s\S]*?)<\/thought_step_3_synthesis>/i);
-    const perspectiveMatch = rawOutput.match(/<final_perspective>([\s\S]*?)<\/final_perspective>/i);
+    const perspectiveMatch = rawOutput.match(/<final_perspective>([\s\S]*?)(?:<\/final_perspective>|$)/i);
 
     const friction = step1Match ? step1Match[1].trim() : 'Analyzing core existential tension.';
     const antiDogmaAudit = step2Match ? step2Match[1].trim() : 'Self-audit confirmed: non-dogmatic posture.';
@@ -126,9 +127,16 @@ export class SeatRouter {
       'take a deep breath',
       'i hear that you',
       'breathe into',
+      'deep breath',
+      'breathe through',
+      'soft exhale',
       'it is valid to feel',
       "let's unpack that",
-      'let us unpack that'
+      'let us unpack that',
+      'i understand your',
+      'i hear you',
+      'mindfulness exercise',
+      'mindfulness breathing'
     ];
 
     let auditPassed = true;
@@ -164,16 +172,65 @@ export class SeatRouter {
     signal: AbortSignal
   ): Promise<string> {
     const formattedUserPrompt = seat.userPromptTemplate(userSpeech);
+    const apiKey = process.env.GROQ_API_KEY;
 
-    switch (seat.modelProvider) {
-      case 'anthropic':
-      case 'gemini':
-      case 'meta-llama':
-      case 'openai':
-      case 'mistral':
-      default:
-        return this.simulateOrExecuteCall(seat, formattedUserPrompt, signal, 700 + Math.random() * 800);
+    if (apiKey && !signal.aborted) {
+      // Allocate a bounded budget for live inference so fallback has ample time to resolve
+      const groqBudgetMs = Math.min(seat.timeoutMs - 1200, 2000);
+      const groqAbort = new AbortController();
+      const groqTimer = setTimeout(() => {
+        groqAbort.abort(new Error(`Groq attempt SLA expired (${groqBudgetMs}ms)`));
+      }, groqBudgetMs);
+
+      const onParentAbort = () => groqAbort.abort();
+      signal.addEventListener('abort', onParentAbort);
+
+      try {
+        const client = new Groq({ apiKey });
+        const res = await client.chat.completions.create(
+          {
+            model: 'groq/compound-mini',
+            max_tokens: 380,
+            temperature: 0.3,
+            messages: [
+              { role: 'system', content: seat.systemPrompt },
+              { role: 'user', content: formattedUserPrompt }
+            ]
+          },
+          { signal: groqAbort.signal }
+        );
+
+        clearTimeout(groqTimer);
+        signal.removeEventListener('abort', onParentAbort);
+
+        const output = res.choices[0]?.message?.content?.trim();
+        if (
+          output &&
+          output.includes('<thought_step_1_friction>') &&
+          output.includes('<final_perspective>')
+        ) {
+          const step1 = output.match(/<thought_step_1_friction>([\s\S]*?)<\/thought_step_1_friction>/i);
+          const step2 = output.match(/<thought_step_2_anti_dogma_audit>([\s\S]*?)<\/thought_step_2_anti_dogma_audit>/i);
+          const step3 = output.match(/<thought_step_3_synthesis>([\s\S]*?)<\/thought_step_3_synthesis>/i);
+          if (this.onCotDelta && step1) {
+            this.onCotDelta({ seatId: seat.id, seatName: seat.name, step: 'friction', delta: step1[1].trim(), fullThought: step1[1].trim() });
+          }
+          if (this.onCotDelta && step2) {
+            this.onCotDelta({ seatId: seat.id, seatName: seat.name, step: 'anti_dogma_audit', delta: step2[1].trim(), fullThought: step2[1].trim() });
+          }
+          if (this.onCotDelta && step3) {
+            this.onCotDelta({ seatId: seat.id, seatName: seat.name, step: 'synthesis', delta: step3[1].trim(), fullThought: step3[1].trim() });
+          }
+          return output;
+        }
+      } catch (err: any) {
+        clearTimeout(groqTimer);
+        signal.removeEventListener('abort', onParentAbort);
+        console.warn(`[SeatRouter] Live Groq call for ${seat.name} fell back to contextual engine: ${err?.message || err}`);
+      }
     }
+
+    return this.simulateOrExecuteCall(seat, userSpeech, signal, 200 + Math.random() * 200);
   }
 
   /**
@@ -182,13 +239,92 @@ export class SeatRouter {
    */
   private async simulateOrExecuteCall(
     seat: CouncilSeatConfig,
-    prompt: string,
+    userInquiry: string,
     signal: AbortSignal,
     simulatedLatencyMs: number
   ): Promise<string> {
     return new Promise<string>((resolve, reject) => {
+      const isRoommateInquiry =
+        /roommate|seattle|scaffolding|planks|mackey|hypnagogic|sleep-talk|caretaker/i.test(userInquiry);
+
       // Archetypal 3-Step CoT Reasonings showing transparent anti-dogmatic auditing
-      const seatCoTData: Record<
+      const roommateCoTData: Record<
+        string,
+        { friction: string; audit: string; synthesis: string; perspective: string }
+      > = {
+        seat_1_stoic_empiricist: {
+          friction:
+            "The seeker is conflating an external sensory intrusion with an internal obligation. The roommate's nocturnal sleep-talking is an involuntary biological emission completely outside the seeker's locus of control. The friction stems from the residual reflex to evaluate whether the roommate is 'okay'—an unexamined holdover from the caretaker persona.",
+          audit:
+            "AUDIT PASS: Zero Marcus Aurelius preachy moralizing or therapeutic soothing clichés. Confirmed strict dichotomy of control: external acoustic events cannot compel inner assent. Ban on clinical breathwork or sympathetic soothing.",
+          synthesis:
+            "Demarcate the external acoustic disturbance from sovereign agency. Demand physical mitigation (sound attenuation) and emotional non-assent over psychological interpretation.",
+          perspective:
+            "His involuntary nocturnal vocalizations belong entirely to his biology, not your locus of control. Treat phantom kitchen orders as indifferent atmospheric weather: insulate your ears, cease diagnosing his state, and hold your center."
+        },
+        seat_2_existentialist: {
+          friction:
+            "The seeker has had an authentic realization of graduation from the institutional shock-absorber role, yet the absurd nocturnal commands ('Come let you take this food out') represent an existential temptation to slip back into bad faith—re-assuming the familiar, exhausting identity of the fixer.",
+          audit:
+            "AUDIT PASS: Checked for Sartre-style intellectual condescension. Confirmed advice demands authentic bodily sovereignty without therapeutic soothing or institutional protocols.",
+          synthesis:
+            "Affirm radical autonomy in lived space: refusing to manage the roommate's unconscious noise is an authentic existential declaration.",
+          perspective:
+            "You graduated from being the shock-absorber; to manage his sleep-talking would be bad faith. Let his nocturnal absurdity evaporate into dead air while you inhabit the authentic freedom of your own bodily boundaries."
+        },
+        seat_3_cyberneticist: {
+          friction:
+            "An uninsulated feedback loop exists where erratic nocturnal transmissions inject noise into the seeker's resting sleep state, triggering vigilant over-functioning. The system lacks a physical circuit breaker to decouple the two autonomous nodes.",
+          audit:
+            "AUDIT PASS: Stripped technocratic jargon. Replaced rigid protocols with dynamic systemic decoupling. Zero belly talk or clinical relaxation coaching.",
+          synthesis:
+            "Install a material circuit breaker between channels to eliminate cross-talk and preserve channel bandwidth for sovereign output.",
+          perspective:
+            "His sleep-talking is an unbuffered output injecting noise into your resting feedback loop. Place a decisive physical circuit breaker between your nervous systems—via acoustic dampening and spatial decoupling—before the cross-talk drains your capacity."
+        },
+        seat_4_mystic_cosmologist: {
+          friction:
+            "The surreal juxtaposition of physical timber scaffolding being assembled outside and phantom kitchen commands emitted inside creates egoic bewilderment when the seeker attempts to impose narrative rationality onto the absurd theater of life.",
+          audit:
+            "AUDIT PASS: Purged New Age spiritual bypassing, cosmic destiny guarantees, and soothing platitudes. Maintained sub specie aeternitatis perspective without invalidating the seeker's boundary.",
+          synthesis:
+            "Witness the comic surrealism of the waking and dreaming architecture without grabbing the tools to fix or manage the play.",
+          perspective:
+            "The physical scaffolding outside and the phantom kitchen orders within are the universe staging an absurd theater of forms. Stand as the unperturbed witness under the aspect of eternity; do not pick up the hammer to fix his dream."
+        },
+        seat_5_pragmatist: {
+          friction:
+            "The seeker is facing an asymmetric game with negative expected value: adopting the roommate's unconscious baggage offers zero utility and guarantees sleep deprivation and caretaker fatigue. The transaction must be terminated with minimal operational cost.",
+          audit:
+            "AUDIT PASS: Pure utility and incentive landscape analysis. Confirmed absence of moralizing guru posture or therapeutic clichés.",
+          synthesis:
+            "Implement a low-cost, high-leverage minimax defense: physical acoustic isolation, one daytime boundary boundary line, and absolute refusal to negotiate with nocturnal noise.",
+          perspective:
+            "Caretaking his unconscious chaos carries negative expected value. Cut your downside with high-grade acoustic barriers, deliver one clear daytime boundary, and preserve your somatic energy for high-utility projects."
+        },
+        seat_6_psychoanalytic: {
+          friction:
+            "The phantom kitchen command ('Come let you take this food out') directly summons the seeker's newly abdicated 'Fixer' archetype. The unconscious of the room is testing whether the breakthrough dream in the Mackey Innovation Space was fully integrated or merely intellectualized.",
+          audit:
+            "AUDIT PASS: Avoided psychoanalytic guru posturing and clinical jargon. Treated the Mackey dream and phantom command with peer-to-peer mythic rigor.",
+          synthesis:
+            "Recognize the nocturnal utterance as a threshold guardian testing the seeker's resolve to remain in their own sovereignty.",
+          perspective:
+            "His phantom kitchen command calls directly to your retired caretaker complex. Recognize the absurdity as a threshold test: let the phantom order die in the dead air, and honor the sovereign dream of the Mackey Space."
+        },
+        seat_7_dialectical: {
+          friction:
+            "The seeker is experiencing acute container friction within a shared living enclosure. The roommate's involuntary sleep-talking is an unmediated environmental intrusion into their nervous system. The construction workers physically assembling 2x4 timber scaffolding outside serve as an architectural mirror: sovereignty cannot survive on unbuilt boundaries. Having outgrown the institutional 'glue' archetype, the seeker faces the structural pressure of an outgrown container that forces proximity to another's unconscious chaos.",
+          audit:
+            "AUDIT PASS: Rigorously peer-to-peer and strategic. Aggressively purged all therapeutic platitudes, breathing exercises, and moralizing demands to 'empathize' or accommodate. Validated container friction as objective environmental physics requiring external structural demarcation rather than internal coping.",
+          synthesis:
+            "Translate the physical scaffolding observed outside into an operational blueprint for sovereign living space: decouple from the roommate's unconscious transmissions, erect immediate acoustic and spatial perimeters, and refuse the caretaker role.",
+          perspective:
+            "Your roommate's sleep-talking is an environmental breach within an outgrown container, not an invitation to resume caretaking. Take the physical scaffolding outside as your literal blueprint: erect rigid structural boundaries around your shared space, maintain absolute somatic sanctity, and refuse to absorb his nocturnal transmissions."
+        }
+      };
+
+      const corporateCoTData: Record<
         string,
         { friction: string; audit: string; synthesis: string; perspective: string }
       > = {
@@ -263,6 +399,9 @@ export class SeatRouter {
             "The friction you are experiencing is not personal inadequacy or clinical exhaustion—it is the structural pressure of outgrowing an environment designed for a smaller scope of agency. Stop treating container failure as an internal defect; begin architecting your external vector of transition."
         }
       };
+
+      const seatCoTData = isRoommateInquiry ? roommateCoTData : corporateCoTData;
+
 
       const data =
         seatCoTData[seat.id] || {

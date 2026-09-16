@@ -47,11 +47,43 @@ export interface SeatDeliberation {
   errorMessage?: string;
 }
 
+export type ReachDimensionKey =
+  | 'relevance'
+  | 'epistemic_humility'
+  | 'agency_preservation'
+  | 'context_sensitivity'
+  | 'harmonization';
+
+export interface ReachDimensionScore {
+  name: string;
+  dimension: ReachDimensionKey;
+  score: number; // 1.0 to 5.0 scale, centered around 2.0 - 4.0
+  rationale: string;
+}
+
+export interface OperationalAssumption {
+  id: string;
+  category: string;
+  statement: string;
+  status: 'unreviewed' | 'affirmed' | 'modified';
+  userNotes?: string;
+}
+
+export interface ReachAuditResult {
+  overallScore: number;
+  dimensions: Record<ReachDimensionKey, ReachDimensionScore>;
+  assumptions: OperationalAssumption[];
+  evaluator: 'latimer_api' | 'local_heuristic_engine';
+  evaluatedAt: string;
+  antiPatronizationPassed: boolean;
+}
+
 export interface ChairmanDossier {
   cosmicAlignments: string[];
   keyTensions: string[];
   somaticPrescriptions: string[];
   strategicExpansionVector?: string;
+  reachAudit?: ReachAuditResult;
   rawSeatDeliberations: SeatDeliberation[];
   metadata: {
     totalDeliberations: number;
@@ -65,3 +97,4 @@ export interface ChairmanDossier {
   };
   spokenSynthesisScript: string;
 }
+

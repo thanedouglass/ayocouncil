@@ -5,8 +5,12 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "start:dev": "ts-node src/index.ts",
     "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/index.ts",
+    "test:live": "ts-node src/test_live_inquiry.ts",
+    "test:triage": "ts-node src/test_triage.ts",
+    "test:cot": "ts-node src/test_cot_antidogma.ts",
     "client:dev": "npm --prefix client run dev",
     "client:build": "npm --prefix client run build"
   },

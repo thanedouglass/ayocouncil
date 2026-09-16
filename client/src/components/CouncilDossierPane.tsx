@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChairmanDossier } from '../types';
+import { ChairmanDossier, OperationalAssumption } from '../types';
+import { ReachAuditDrawer } from './ReachAuditDrawer';
 import {
   Compass,
   Flame,
@@ -21,6 +22,7 @@ interface Props {
   isLoading: boolean;
   onVocalize: (script: string) => void;
   isSpeaking: boolean;
+  onUpdateAssumption?: (assumptionId: string, updated: Partial<OperationalAssumption>) => void;
   liveCotStream?: Record<
     string,
     {
@@ -37,6 +39,7 @@ export const CouncilDossierPane: React.FC<Props> = ({
   isLoading,
   onVocalize,
   isSpeaking,
+  onUpdateAssumption,
   liveCotStream = {}
 }) => {
   const [showRawSeats, setShowRawSeats] = useState(false);
@@ -131,6 +134,14 @@ export const CouncilDossierPane: React.FC<Props> = ({
               "{dossier.spokenSynthesisScript}"
             </p>
           </div>
+        )}
+
+        {/* Latimer REACH Auto-Rater & Operational Assumptions Drawer */}
+        {dossier?.reachAudit && (
+          <ReachAuditDrawer
+            audit={dossier.reachAudit}
+            onUpdateAssumption={onUpdateAssumption}
+          />
         )}
 
         {/* ------------------------------------------------------------------ */}

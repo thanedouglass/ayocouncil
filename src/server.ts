@@ -14,7 +14,9 @@ if (!process.env.GROQ_API_KEY || !process.env.GROQ_API_KEY.trim()) {
 
 import cors from 'cors';
 import express, { Request, Response } from 'express';
+import fs from 'fs';
 import http from 'http';
+import path from 'path';
 import WebSocket, { WebSocketServer } from 'ws';
 import { invokeElegba } from './agents/elegba';
 import { CompiledDiagnosticSchema, IntakeSessionState, processIntakeTurn } from './agents/intakeAgent';
@@ -50,6 +52,20 @@ export function createServer(port: number = 8080) {
   // Wire live Chain-of-Thought (CoT) delta events to WebSocket broadcast
   pipeline.on('cot_delta', (event) => {
     broadcastWebSocket({ type: 'cot_delta', ...event });
+  });
+
+  // Wire Latimer REACH Auto-Rater audit events to WebSocket broadcast
+  pipeline.on('reach_audit', (audit) => {
+    broadcastWebSocket({ type: 'reach_audit', audit });
+  });
+
+  // Fly.io and Load Balancer Liveness / Health Check endpoint
+  app.get('/health', (_req: Request, res: Response) => {
+    res.status(200).json({
+      status: 'ok',
+      service: 'ayocouncil',
+      timestamp: new Date().toISOString()
+    });
   });
 
   // Status & Health endpoint
@@ -262,6 +278,27 @@ ${(dossier.somaticPrescriptions || []).map((p: string, i: number) => `${i + 1}. 
       res.status(500).json({ error: err.message || 'Session purge failed' });
     }
   });
+
+  // Single-Domain Production Static Serving: client/dist
+  const possibleDistPaths = [
+    path.resolve(process.cwd(), 'client/dist'),
+    path.resolve(__dirname, '../client/dist'),
+    path.resolve(__dirname, '../../client/dist')
+  ];
+  const clientDist = possibleDistPaths.find((p) => fs.existsSync(p));
+
+  if (clientDist) {
+    console.log(`[Server] Serving static client SPA from ${clientDist}`);
+    app.use(express.static(clientDist));
+    app.use((req: Request, res: Response, next) => {
+      if (req.method === 'GET' && !req.path.startsWith('/api') && req.path !== '/health') {
+        return res.sendFile(path.join(clientDist, 'index.html'));
+      }
+      next();
+    });
+  } else {
+    console.log('[Server] client/dist not detected; running in API/WebSocket mode.');
+  }
 
   // Real-time WebSocket connection
   wss.on('connection', (clientWs: WebSocket) => {

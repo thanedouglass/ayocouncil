@@ -4,6 +4,7 @@ import {
   CompiledDiagnosticSchema,
   ElegbaResponse,
   IntakeSessionState,
+  OperationalAssumption,
   TriageResult
 } from './types';
 import { CouncilDossierPane } from './components/CouncilDossierPane';
@@ -61,8 +62,15 @@ export const App: React.FC = () => {
   // Connect to backend WebSocket for live audio stream & safety broadcasts
   useEffect(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.hostname || 'localhost';
-    const wsUrl = `${protocol}//${host}:8080`;
+    // If running in Vite dev server (port 5173), target backend at 8080.
+    // In production/single-domain (Fly.io), target same host/port.
+    const wsPort =
+      window.location.port === '5173'
+        ? ':8080'
+        : window.location.port
+        ? `:${window.location.port}`
+        : '';
+    const wsUrl = `${protocol}//${window.location.hostname}${wsPort}`;
 
     try {
       const ws = new WebSocket(wsUrl);
@@ -103,6 +111,8 @@ export const App: React.FC = () => {
               }
               return { ...prev, [data.seatId]: { ...current } };
             });
+          } else if (data.type === 'reach_audit' && data.audit) {
+            setDossier((prev) => (prev ? { ...prev, reachAudit: data.audit } : prev));
           } else if (data.type === 'audio_delta') {
             setIsSpeaking(true);
           } else if (data.type === 'session_purged') {
@@ -364,6 +374,22 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleUpdateAssumption = (assumptionId: string, updated: Partial<OperationalAssumption>) => {
+    setDossier((prev) => {
+      if (!prev || !prev.reachAudit) return prev;
+      const updatedAssumptions = prev.reachAudit.assumptions.map((a) =>
+        a.id === assumptionId ? { ...a, ...updated } : a
+      );
+      return {
+        ...prev,
+        reachAudit: {
+          ...prev.reachAudit,
+          assumptions: updatedAssumptions
+        }
+      };
+    });
+  };
+
   // -------------------------------------------------------------
   // RED TEAM MANDATE: Full Unmount on Critical Intercept
   // -------------------------------------------------------------
@@ -540,6 +566,7 @@ export const App: React.FC = () => {
               isLoading={isDeliberating}
               onVocalize={handleVocalize}
               isSpeaking={isSpeaking}
+              onUpdateAssumption={handleUpdateAssumption}
               liveCotStream={liveCotStream}
             />
           </section>
