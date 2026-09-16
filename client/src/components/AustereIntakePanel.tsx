@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { IntakeSessionState } from '../types';
-import { Bot, User, Send, Shield, RefreshCw } from 'lucide-react';
+import { Bot, User, Zap, RefreshCw } from 'lucide-react';
 
 interface Props {
   sessionState: IntakeSessionState;
@@ -9,6 +10,12 @@ interface Props {
   onCancel: () => void;
 }
 
+const spring = { type: 'spring', stiffness: 240, damping: 26 } as const;
+
+/**
+ * The Sovereign Inquiry Terminal: the council's front door. High-agency,
+ * zero bureaucracy — the human states their friction, the stones answer.
+ */
 export const AustereIntakePanel: React.FC<Props> = ({
   sessionState,
   onSendTurn,
@@ -26,92 +33,92 @@ export const AustereIntakePanel: React.FC<Props> = ({
   };
 
   return (
-    <div className="w-full bg-[#0d0d14] border-2 border-neutral-800 rounded-xl p-5 shadow-2xl space-y-4 font-mono">
+    <div className="w-full glass-pane p-5 space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
-        <div className="flex items-center space-x-2.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-xs font-bold tracking-widest text-neutral-200 uppercase">
-            Austere Intake Agent // Pre-Flight Diagnostic
+      <div className="flex items-center justify-between pb-3 border-b border-white/5">
+        <div className="flex items-center gap-2.5">
+          <motion.div
+            className="w-2 h-2 rounded-full bg-stone-cyan"
+            animate={{ opacity: [1, 0.3, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity }}
+          />
+          <span className="telemetry uppercase text-gray-200">
+            Convoke the Council <span className="text-gray-600">//</span> Sovereign Inquiry Terminal
           </span>
         </div>
-        <div className="flex items-center space-x-3 text-[11px]">
-          <span className="text-neutral-500">Turn Ceiling:</span>
-          <span className="px-2 py-0.5 rounded bg-cyan-950/50 border border-cyan-800/60 text-cyan-300 font-bold">
-            Turn {sessionState.turnCount}/2
+        <div className="telemetry uppercase flex items-center gap-2">
+          <span>Exchange</span>
+          <span className="px-2.5 py-0.5 rounded-full bg-stone-cyan/10 border border-stone-cyan/30 text-stone-cyan font-semibold">
+            {sessionState.turnCount} / 2
           </span>
         </div>
       </div>
 
-      {/* Austerity Disclaimer */}
-      <div className="p-3 bg-[#11111a] border-l-2 border-cyan-500 text-neutral-400 text-xs leading-relaxed flex items-start space-x-2">
-        <Shield className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
-        <div>
-          <span className="text-cyan-400 font-semibold uppercase text-[10px] block">Austerity Protocol Enforced:</span>
-          This mechanical parser does not mirror emotions or offer therapeutic validation. 
-          Its sole mandate is to extract friction, somatic sensations, and involved actors in under 2 turns.
-        </div>
-      </div>
-
-      {/* Message History */}
+      {/* Exchange history */}
       <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
         {sessionState.history.map((msg, idx) => (
-          <div
+          <motion.div
             key={idx}
-            className={`p-3 rounded-lg text-xs leading-relaxed flex items-start space-x-2.5 ${
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={spring}
+            className={`p-3.5 rounded-xl text-sm leading-relaxed flex items-start gap-3 ${
               msg.role === 'user'
-                ? 'bg-[#14141e] border border-neutral-800 text-neutral-200'
-                : 'bg-[#0f121a] border border-cyan-950/60 text-cyan-200'
+                ? 'bg-white/[0.03] border border-white/5 text-gray-100 font-sans'
+                : 'bg-stone-cyan/[0.04] border border-stone-cyan/10 text-cyan-100 font-sans'
             }`}
           >
             {msg.role === 'user' ? (
-              <User className="w-3.5 h-3.5 text-neutral-500 flex-shrink-0 mt-0.5" />
+              <User className="w-3.5 h-3.5 text-gray-500 flex-shrink-0 mt-1" />
             ) : (
-              <Bot className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <Bot className="w-3.5 h-3.5 text-stone-cyan flex-shrink-0 mt-1" />
             )}
             <div className="flex-1 whitespace-pre-wrap">{msg.content}</div>
-          </div>
+          </motion.div>
         ))}
 
         {isLoading && (
-          <div className="p-3 bg-[#0f121a] border border-cyan-950/60 rounded-lg text-xs text-cyan-300 flex items-center space-x-2 animate-pulse">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin text-cyan-400" />
-            <span>Parsing somatic markers & extracting friction...</span>
+          <div className="p-3.5 rounded-xl bg-stone-cyan/[0.04] border border-stone-cyan/10 text-stone-cyan flex items-center gap-2 font-mono text-xs tracking-wide">
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            <span>The Intake stone is listening...</span>
           </div>
         )}
       </div>
 
-      {/* Input Bar */}
-      <form onSubmit={handleSubmit} className="flex gap-2 pt-2">
+      {/* Input */}
+      <form onSubmit={handleSubmit} className="flex gap-2 pt-1">
         <input
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           disabled={isLoading}
-          placeholder={
-            sessionState.turnCount === 0
-              ? 'Articulate your core tension or conflict...'
-              : 'Specify bodily sensations (e.g. chest pressure) and involved actors...'
-          }
-          className="flex-1 px-3.5 py-2.5 bg-[#09090d] border border-neutral-800 rounded-lg text-xs font-mono text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+          placeholder="State your core dilemma, friction, or transition..."
+          className="flex-1 px-4 py-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl text-sm font-sans text-gray-100 placeholder-gray-600 focus:outline-none focus:border-stone-cyan/60 focus:shadow-[0_0_24px_-8px_rgba(0,240,255,0.4)] transition-all duration-300"
         />
 
-        <button
+        <motion.button
           type="submit"
           disabled={isLoading || !inputText.trim()}
-          className="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:bg-neutral-800 disabled:text-neutral-600 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5"
+          whileHover={
+            !(isLoading || !inputText.trim())
+              ? { scale: 1.03, boxShadow: '0 0 36px -6px rgba(0,240,255,0.5)' }
+              : undefined
+          }
+          whileTap={{ scale: 0.96 }}
+          transition={spring}
+          className="px-5 py-3 rounded-xl bg-gradient-to-r from-stone-cyan/90 via-stone-violet/90 to-flare text-black font-mono text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 disabled:opacity-30 transition-opacity"
         >
-          <Send className="w-3.5 h-3.5" />
-          <span>Submit</span>
-        </button>
+          <Zap className="w-3.5 h-3.5" />
+          <span>Ignite Council Convect</span>
+        </motion.button>
 
         <button
           type="button"
           onClick={onCancel}
           disabled={isLoading}
-          className="px-3 py-2.5 border border-neutral-800 hover:border-neutral-700 text-neutral-500 hover:text-neutral-300 rounded-lg text-xs"
+          className="px-3.5 py-3 rounded-xl border border-white/10 hover:border-white/25 text-gray-500 hover:text-gray-300 font-mono text-xs uppercase tracking-widest transition-colors"
         >
-          Cancel
+          Stand down
         </button>
       </form>
     </div>

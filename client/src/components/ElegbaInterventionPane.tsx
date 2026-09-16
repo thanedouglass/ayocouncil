@@ -23,9 +23,9 @@ export const ElegbaInterventionPane: React.FC<Props> = ({
   const isDossierReady = !!dossier;
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0c] border border-ruby/40 rounded-lg overflow-hidden shadow-ruby-glow transition-all">
+    <div className="flex flex-col h-full glass-pane border-ruby/20 overflow-hidden shadow-aura-idle transition-all">
       {/* Header Bar */}
-      <div className="flex items-center justify-between px-5 py-3.5 bg-[#120a0f] border-b border-ruby/30">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
         <div className="flex items-center space-x-2.5">
           <Flame className="w-4 h-4 text-ruby animate-bounce" />
           <span className="text-xs font-mono tracking-widest text-ruby font-bold uppercase">
@@ -45,7 +45,7 @@ export const ElegbaInterventionPane: React.FC<Props> = ({
       <div className="flex-1 p-5 overflow-y-auto flex flex-col justify-between font-mono text-xs leading-relaxed">
         {/* State 1: No Dossier Yet */}
         {!isDossierReady && (
-          <div className="flex flex-col items-center justify-center flex-1 min-h-[380px] text-center p-6 border border-dashed border-neutral-900 rounded-lg">
+          <div className="flex flex-col items-center justify-center flex-1 min-h-[380px] text-center p-6 border border-dashed border-white/5 rounded-2xl">
             <Skull className="w-10 h-10 text-neutral-800 mb-3" />
             <div className="text-neutral-500 font-mono text-xs uppercase tracking-wider font-semibold">
               The Crossroads Are Dormant
@@ -58,7 +58,7 @@ export const ElegbaInterventionPane: React.FC<Props> = ({
 
         {/* State 2: Dossier Ready, but Elegba not yet summoned */}
         {isDossierReady && !elegba && (
-          <div className="flex flex-col items-center justify-center flex-1 min-h-[380px] text-center p-8 bg-[#0e0a0e] border border-ruby/20 rounded-lg space-y-4">
+          <div className="flex flex-col items-center justify-center flex-1 min-h-[380px] text-center p-8 bg-white/[0.02] border border-ruby/15 rounded-2xl space-y-4">
             <div className="relative">
               <div className="w-16 h-16 rounded-full bg-ruby/10 border border-ruby flex items-center justify-center shadow-ruby-glow animate-pulse">
                 <Flame className="w-8 h-8 text-ruby" />
@@ -101,7 +101,7 @@ export const ElegbaInterventionPane: React.FC<Props> = ({
         {/* State 3: Elegba Pushback Active */}
         {elegba && (
           <div className="space-y-4 flex-1">
-            <div className="p-4 bg-[#140b10] border-l-4 border-ruby rounded-r-lg space-y-3 shadow-md">
+            <div className="p-4 bg-white/[0.02] border-l-2 border-ruby rounded-r-2xl space-y-3">
               <div className="flex items-center justify-between text-[11px] text-ruby font-bold uppercase tracking-wider pb-2 border-b border-ruby/20">
                 <span className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" /> Èṣù-Ẹlẹ́gbára Adversarial Counter-Strike
