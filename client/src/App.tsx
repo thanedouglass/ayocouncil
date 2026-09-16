@@ -387,10 +387,10 @@ export const App: React.FC = () => {
           </div>
           <div>
             <div className="text-sm font-mono font-bold tracking-widest text-neutral-100 flex items-center gap-2 uppercase">
-              AyoCouncil <span className="text-ruby">//</span> Chairman Dashboard
+              IO Council <span className="text-ruby">//</span> Peer-to-peer counsel for sovereign minds
             </div>
-            <div className="text-[10px] font-mono text-neutral-500">
-              Meta-Prompting Intake & Sovereign Friction Gate
+            <div className="text-[11px] font-mono text-neutral-400">
+              Deliberation without de-platforming your agency.
             </div>
           </div>
         </div>

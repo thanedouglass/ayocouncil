@@ -276,9 +276,12 @@ export const CouncilDossierPane: React.FC<Props> = ({
                 Container Diagnosis
               </span>
             </div>
-            <div className="p-3.5 bg-[#0e101c] border-l-2 border-indigo-500 border-t border-r border-b border-indigo-950/60 rounded-r-lg text-neutral-200 shadow-sm">
-              <div className="text-[10px] font-mono uppercase text-indigo-400 font-bold mb-1.5 flex items-center gap-1.5">
+            <div className="p-3.5 bg-[#0e101c] border-l-2 border-indigo-500 border-t border-r border-b border-indigo-950/60 rounded-r-lg text-neutral-200 shadow-sm space-y-2">
+              <div className="text-[10px] font-mono uppercase text-indigo-400 font-bold flex items-center gap-1.5">
                 <span>Autonomous Capacity & External Transition</span>
+              </div>
+              <div className="text-xs font-mono text-indigo-300 italic border-b border-indigo-950/60 pb-2">
+                "When you outgrow the container, stop fighting the walls—build the next horizon."
               </div>
               <p className="text-xs leading-relaxed text-neutral-200 font-mono">
                 {dossier.strategicExpansionVector}
