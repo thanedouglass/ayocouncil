@@ -8,6 +8,8 @@
     "start": "node dist/index.js",
     "start:dev": "ts-node src/index.ts",
     "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/index.ts",
+    "test": "ts-node scripts/run_tests.ts",
+    "demo:telemetry": "ts-node scripts/demo_council_telemetry.ts",
     "test:live": "ts-node src/test_live_inquiry.ts",
     "test:triage": "ts-node src/test_triage.ts",
     "test:cot": "ts-node src/test_cot_antidogma.ts",
