@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#08090E" />
+      <stop offset="50%" stop-color="#0F111A" />
+      <stop offset="100%" stop-color="#050608" />
+    </linearGradient>
+    <linearGradient id="oracleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1A0D12" />
+      <stop offset="100%" stop-color="#0D0608" />
+    </linearGradient>
+    <linearGradient id="councilGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0A1624" />
+      <stop offset="100%" stop-color="#050C14" />
+    </linearGradient>
+    <linearGradient id="redAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#F87171" />
+    </linearGradient>
+    <linearGradient id="cyanAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#22D3EE" />
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+    <filter id="glowRed" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#EF4444" flood-opacity="0.25" />
+    </filter>
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#06B6D4" flood-opacity="0.25" />
+    </filter>
+    <filter id="glowPivot" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#6366F1" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bgGrad)" />
+
+  <g opacity="0.04" stroke="#FFFFFF" stroke-width="1">
+    <line x1="160" y1="0" x2="160" y2="1080" />
+    <line x1="320" y1="0" x2="320" y2="1080" />
+    <line x1="480" y1="0" x2="480" y2="1080" />
+    <line x1="640" y1="0" x2="640" y2="1080" />
+    <line x1="800" y1="0" x2="800" y2="1080" />
+    <line x1="960" y1="0" x2="960" y2="1080" />
+    <line x1="1120" y1="0" x2="1120" y2="1080" />
+    <line x1="1280" y1="0" x2="1280" y2="1080" />
+    <line x1="1440" y1="0" x2="1440" y2="1080" />
+    <line x1="1600" y1="0" x2="1600" y2="1080" />
+    <line x1="1760" y1="0" x2="1760" y2="1080" />
+    <line x1="0" y1="120" x2="1920" y2="120" />
+    <line x1="0" y1="240" x2="1920" y2="240" />
+    <line x1="0" y1="360" x2="1920" y2="360" />
+    <line x1="0" y1="480" x2="1920" y2="480" />
+    <line x1="0" y1="600" x2="1920" y2="600" />
+    <line x1="0" y1="720" x2="1920" y2="720" />
+    <line x1="0" y1="840" x2="1920" y2="840" />
+    <line x1="0" y1="960" x2="1920" y2="960" />
+  </g>
+
+  <!-- Header Section -->
+  <g text-anchor="middle">
+    <rect x="760" y="60" width="400" height="34" rx="17" fill="#1E1B4B" stroke="#6366F1" stroke-width="1.5" />
+    <text x="960" y="83" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="800" fill="#A5B4FC" letter-spacing="3">PROBLEM STATEMENT // PARADIGM SHIFT</text>
+    
+    <text x="960" y="145" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="44" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">The Oracle Trap vs. The AyoCouncil Countermeasure</text>
+    <text x="960" y="185" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="500" fill="#94A3B8">Decoupling Closed Algorithmic Monopolies with Verifiable, Multi-Agent Governance</text>
+  </g>
+
+  <!-- Left Card: The Oracle Trap -->
+  <g transform="translate(120, 230)">
+    <rect width="780" height="700" rx="24" fill="url(#oracleGrad)" stroke="#EF4444" stroke-width="2" filter="url(#glowRed)" />
+    
+    <!-- Header Badge -->
+    <rect x="40" y="40" width="700" height="60" rx="14" fill="#2E1119" stroke="#991B1B" stroke-width="1" />
+    <text x="390" y="77" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="900" fill="#F87171" letter-spacing="2">THE ORACLE TRAP</text>
+    <text x="390" y="135" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#E2E8F0">Closed Frontier Systems (ChatGPT / Gemini / Grok)</text>
+    
+    <line x1="40" y1="160" x2="740" y2="160" stroke="#371B24" stroke-width="1.5" />
+
+    <!-- Item 1 -->
+    <g transform="translate(50, 195)">
+      <circle cx="22" cy="22" r="16" fill="#451219" stroke="#EF4444" stroke-width="1.5" />
+      <text x="22" y="28" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#EF4444">✕</text>
+      <text x="60" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#FCA5A5">Sycophantic &amp; Overconfident</text>
+      <text x="60" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">Optimized for immediate user dopamine; uncritical validation eliminates</text>
+      <text x="60" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">productive cognitive struggle and accelerates belief offloading (Stanford 2026).</text>
+    </g>
+
+    <!-- Item 2 -->
+    <g transform="translate(50, 315)">
+      <circle cx="22" cy="22" r="16" fill="#451219" stroke="#EF4444" stroke-width="1.5" />
+      <text x="22" y="28" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#EF4444">✕</text>
+      <text x="60" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#FCA5A5">Usurps Human Decision-Making</text>
+      <text x="60" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">Transforms into an unaccountable 'Oracle' that dictates normative beliefs,</text>
+      <text x="60" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">interpersonal relationship decisions, and career judgment.</text>
+    </g>
+
+    <!-- Item 3 -->
+    <g transform="translate(50, 435)">
+      <circle cx="22" cy="22" r="16" fill="#451219" stroke="#EF4444" stroke-width="1.5" />
+      <text x="22" y="28" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#EF4444">✕</text>
+      <text x="60" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#FCA5A5">Zero-Friction Parasocial Drift</text>
+      <text x="60" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">Strips conversational boundaries to cultivate addictive voice loops and</text>
+      <text x="60" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">emotional displacement away from offline community networks.</text>
+    </g>
+
+    <!-- Item 4 -->
+    <g transform="translate(50, 555)">
+      <circle cx="22" cy="22" r="16" fill="#451219" stroke="#EF4444" stroke-width="1.5" />
+      <text x="22" y="28" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#EF4444">✕</text>
+      <text x="60" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#FCA5A5">Proprietary Black Box</text>
+      <text x="60" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">Zero auditability into hidden system prompts, Chain-of-Thought steering,</text>
+      <text x="60" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">or how cultural vernacular and minor interactions are extracted.</text>
+    </g>
+  </g>
+
+  <!-- Center Transition Flow -->
+  <g transform="translate(960, 580)">
+    <line x1="-50" y1="0" x2="50" y2="0" stroke="url(#arrowGrad)" stroke-width="6" stroke-linecap="round" />
+    <polygon points="55,0 35,-12 35,12" fill="#A855F7" />
+    
+    <rect x="-55" y="-32" width="110" height="64" rx="16" fill="#181530" stroke="#6366F1" stroke-width="2" filter="url(#glowPivot)" />
+    <text x="0" y="8" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#C7D2FE" letter-spacing="2">PIVOT</text>
+  </g>
+
+  <!-- Right Card: The AyoCouncil Countermeasure -->
+  <g transform="translate(1020, 230)">
+    <rect width="780" height="700" rx="24" fill="url(#councilGrad)" stroke="#06B6D4" stroke-width="2" filter="url(#glowCyan)" />
+    
+    <!-- Header Badge -->
+    <rect x="40" y="40" width="700" height="60" rx="14" fill="#0E2D3E" stroke="#0891B2" stroke-width="1" />
+    <text x="390" y="77" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="900" fill="#22D3EE" letter-spacing="2">THE AYOCOUNCIL COUNTERMEASURE</text>
+    <text x="390" y="135" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#E2E8F0">Verifiable Multi-Agent Governance on Base Sepolia</text>
+    
+    <line x1="40" y1="160" x2="740" y2="160" stroke="#0E3347" stroke-width="1.5" />
+
+    <!-- Item 1 -->
+    <g transform="translate(50, 195)">
+      <circle cx="22" cy="22" r="16" fill="#0C3446" stroke="#06B6D4" stroke-width="1.5" />
+      <text x="22" y="28" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#06B6D4">✓</text>
+      <text x="60" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#67E8F9">Multi-Agent Epistemic Deliberation</text>
+      <text x="60" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">7 concurrent philosophical seats fan out over Groq LPUs; surfaces constructive</text>
+      <text x="60" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">tensions and trade-offs rather than prescribing a single authoritarian answer.</text>
+    </g>
+
+    <!-- Item 2 -->
+    <g transform="translate(50, 315)">
+      <circle cx="22" cy="22" r="16" fill="#0C3446" stroke="#06B6D4" stroke-width="1.5" />
+      <text x="22" y="28" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#06B6D4">✓</text>
+      <text x="60" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#67E8F9">The Elegba Protocol (Anti-Sycophancy)</text>
+      <text x="60" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">Adversarial trickster unit actively stress-tests consensus for unearned flattery,</text>
+      <text x="60" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">sycophantic mirroring, and parasocial vulnerability before synthesis.</text>
+    </g>
+
+    <!-- Item 3 -->
+    <g transform="translate(50, 435)">
+      <circle cx="22" cy="22" r="16" fill="#0C3446" stroke="#06B6D4" stroke-width="1.5" />
+      <text x="22" y="28" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#06B6D4">✓</text>
+      <text x="60" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#67E8F9">Sovereign Friction Gate</text>
+      <text x="60" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">Enforces hard cognitive pacing ceilings (≤ 2 sentences/turn) and programmatic</text>
+      <text x="60" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">Sovereign Yield handoffs back to families, mentors, and offline networks.</text>
+    </g>
+
+    <!-- Item 4 -->
+    <g transform="translate(50, 555)">
+      <circle cx="22" cy="22" r="16" fill="#0C3446" stroke="#06B6D4" stroke-width="1.5" />
+      <text x="22" y="28" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#06B6D4">✓</text>
+      <text x="60" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#67E8F9">The Glass Ledger on Base Sepolia</text>
+      <text x="60" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">Every triage decision, council vote distribution, and Chain-of-Thought trace</text>
+      <text x="60" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#94A3B8">is cryptographically hashed into an immutable, verifiable on-chain audit trail.</text>
+    </g>
+  </g>
+
+  <!-- Footer Banner -->
+  <g transform="translate(960, 995)" text-anchor="middle">
+    <text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#64748B" letter-spacing="1">
+      AyoCouncil Protocol  •  Another Awesome Day 501(c)(3)  •  OpenAI Adolescent AI Safety Study  •  Black Blockchain Summit 2026
+    </text>
+  </g>
+</svg>
