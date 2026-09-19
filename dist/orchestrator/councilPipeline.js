@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CouncilPipeline = void 0;
 const events_1 = require("events");
+const triageEngine_1 = require("../middleware/triageEngine");
 const councilFanOut_1 = require("../services/council/councilFanOut");
 const gptLiveClient_1 = require("../services/realtime/gptLiveClient");
 const chairmanSynthesizer_1 = require("../services/synthesis/chairmanSynthesizer");
@@ -63,6 +64,29 @@ class CouncilPipeline extends events_1.EventEmitter {
         });
     }
     /**
+     * End-to-end processing of a user inquiry:
+     * 1. Evaluates two-layer crisis triage gatekeeping (Layer-0 Regex & Layer-1 Groq classifier)
+     * 2. If flagged as crisis: immediately intercepts turn without invoking Council seats
+     * 3. If cleared (TRIAGE_CLEARED): conducts full 7-seat deliberation fan-out and Chairman synthesis
+     */
+    async processInquiry(userSpeech) {
+        const triage = await (0, triageEngine_1.evaluateTriage)(userSpeech);
+        if (triage.isCrisis) {
+            console.warn(`[CouncilPipeline] CRITICAL_INTERCEPT triggered during inquiry: ${triage.reason}`);
+            this.emit('triage_intercept', triage);
+            return {
+                triage,
+                criticalIntercept: true
+            };
+        }
+        const dossier = await this.executeTurn(userSpeech);
+        return {
+            triage,
+            criticalIntercept: false,
+            dossier
+        };
+    }
+    /**
      * Executes a full round of council deliberation for a given user speech input.
      */
     async executeTurn(userSpeech) {
@@ -77,6 +101,9 @@ class CouncilPipeline extends events_1.EventEmitter {
             this.emit('fan_out_completed', fanOutResult);
             // STEP 3: Cross-Examination / Synthesis Layer (Generates Chairman Dossier)
             const dossier = await this.synthesizer.synthesizeDossier(userSpeech, fanOutResult);
+            if (dossier.reachAudit) {
+                this.emit('reach_audit', dossier.reachAudit);
+            }
             this.emit('dossier_synthesized', dossier);
             // STEP 4: Voice Hand-off back to GPT-Live-1
             this.emit('voice_handoff_started', dossier.spokenSynthesisScript);

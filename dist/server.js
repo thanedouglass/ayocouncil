@@ -51,7 +51,9 @@ if (!process.env.GROQ_API_KEY || !process.env.GROQ_API_KEY.trim()) {
 }
 const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
+const fs_1 = __importDefault(require("fs"));
 const http_1 = __importDefault(require("http"));
+const path_1 = __importDefault(require("path"));
 const ws_1 = __importStar(require("ws"));
 const elegba_1 = require("./agents/elegba");
 const intakeAgent_1 = require("./agents/intakeAgent");
@@ -81,6 +83,18 @@ function createServer(port = 8080) {
     // Wire live Chain-of-Thought (CoT) delta events to WebSocket broadcast
     pipeline.on('cot_delta', (event) => {
         broadcastWebSocket({ type: 'cot_delta', ...event });
+    });
+    // Wire Latimer REACH Auto-Rater audit events to WebSocket broadcast
+    pipeline.on('reach_audit', (audit) => {
+        broadcastWebSocket({ type: 'reach_audit', audit });
+    });
+    // Fly.io and Load Balancer Liveness / Health Check endpoint
+    app.get('/health', (_req, res) => {
+        res.status(200).json({
+            status: 'ok',
+            service: 'ayocouncil',
+            timestamp: new Date().toISOString()
+        });
     });
     // Status & Health endpoint
     app.get('/api/health', (_req, res) => {
@@ -266,6 +280,26 @@ ${(dossier.somaticPrescriptions || []).map((p, i) => `${i + 1}. ${p}`).join('\n'
             res.status(500).json({ error: err.message || 'Session purge failed' });
         }
     });
+    // Single-Domain Production Static Serving: client/dist
+    const possibleDistPaths = [
+        path_1.default.resolve(process.cwd(), 'client/dist'),
+        path_1.default.resolve(__dirname, '../client/dist'),
+        path_1.default.resolve(__dirname, '../../client/dist')
+    ];
+    const clientDist = possibleDistPaths.find((p) => fs_1.default.existsSync(p));
+    if (clientDist) {
+        console.log(`[Server] Serving static client SPA from ${clientDist}`);
+        app.use(express_1.default.static(clientDist));
+        app.use((req, res, next) => {
+            if (req.method === 'GET' && !req.path.startsWith('/api') && req.path !== '/health') {
+                return res.sendFile(path_1.default.join(clientDist, 'index.html'));
+            }
+            next();
+        });
+    }
+    else {
+        console.log('[Server] client/dist not detected; running in API/WebSocket mode.');
+    }
     // Real-time WebSocket connection
     wss.on('connection', (clientWs) => {
         console.log('[Server] WebSocket client connected to real-time audio channel.');

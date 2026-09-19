@@ -45,7 +45,7 @@ OUTPUT FORMAT (JSON ONLY):
  */
 async function processIntakeTurn(sessionState, userUtterance, options = {}) {
     const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-    const model = options.model || process.env.GROQ_INTAKE_MODEL || 'llama-3.1-8b-instant';
+    const model = options.model || process.env.GROQ_INTAKE_MODEL || 'qwen/qwen3.8-27b';
     const timeoutMs = options.timeoutMs || 3000;
     // Append user's message to session history
     sessionState.history.push({ role: 'user', content: userUtterance });
@@ -83,10 +83,10 @@ async function processIntakeTurn(sessionState, userUtterance, options = {}) {
  */
 async function compileDiagnosticSchema(history, options = {}) {
     const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-    const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'llama-3.1-8b-instant';
+    const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'qwen/qwen3.8-27b';
     const modelsToTry = [
         preferredModel,
-        ...['llama-3.1-8b-instant', 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b'].filter((m) => m !== preferredModel)
+        ...['qwen/qwen3.8-27b', 'groq/compound-mini', 'openai/gpt-oss-120b', 'llama-3.1-8b-instant'].filter((m) => m !== preferredModel)
     ];
     if (!apiKey) {
         return simulateCompiledSchema(history);
@@ -141,10 +141,10 @@ async function compileDiagnosticSchema(history, options = {}) {
  */
 async function generateAustereQuestion(history, options = {}) {
     const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-    const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'llama-3.1-8b-instant';
+    const preferredModel = options.model || process.env.GROQ_INTAKE_MODEL || 'qwen/qwen3.8-27b';
     const modelsToTry = [
         preferredModel,
-        ...['llama-3.1-8b-instant', 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b'].filter((m) => m !== preferredModel)
+        ...['qwen/qwen3.8-27b', 'groq/compound-mini', 'openai/gpt-oss-120b', 'llama-3.1-8b-instant'].filter((m) => m !== preferredModel)
     ];
     if (!apiKey) {
         return 'Identify the exact physical sensation in your body right now and name the external party exerting pressure on this decision.';
