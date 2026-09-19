@@ -29,9 +29,9 @@ The pipeline is hardened with an **Austere Meta-Prompting Intake Layer**, a **Fa
 
 ## Paradigm Shift: The Oracle Trap vs. The AyoCouncil Countermeasure
 
-Centralized AI assistants (ChatGPT, Gemini, Grok) operate as monopolistic oracles. By optimizing for user retention, dopamine, and friction-free compliance, they cultivate sycophancy, cognitive offloading, and dangerous parasocial attachments—particularly among adolescent and vulnerable populations (Stanford 2026 Adolescent AI Safety Study).
+Centralized frontier AI assistants (ChatGPT, Gemini, Grok) operate as monopolistic oracles. As empirically characterized by **[Cheng et al. (2026)](https://arxiv.org/html/2609.14849v1)** in [*LLMs as Oracles: Reliance on LLMs for Subjective Personal Questions*](https://arxiv.org/html/2609.14849v1), users increasingly turn to LLMs as all-knowing authorities on subjective, value-laden personal questions, offloading personal judgment and critical decision-making. By optimizing for frictionless compliance and user retention, commercial single-agent systems cultivate sycophancy, cognitive offloading, and dangerous parasocial attachments—trends that Cheng et al. demonstrated have accelerated from 2023 to 2026 and are significantly more prevalent among younger users.
 
-**AyoCouncil** replaces the unaccountable single-oracle model with a multi-agent deliberative democracy anchored by an adversarial countermeasure and on-chain transparency.
+**AyoCouncil** replaces the unaccountable single-oracle model with a verifiable multi-agent deliberative democracy, directly operationalizing the algorithmic interventions called for by Cheng et al. to support sovereign user self-deliberation rather than passive reliance.
 
 ![The Oracle Trap vs. The AyoCouncil Countermeasure](.assets/ayocouncil_oracle_vs_countermeasure.svg)
 
@@ -40,7 +40,7 @@ Centralized AI assistants (ChatGPT, Gemini, Grok) operate as monopolistic oracle
 | Failure Mode | The Oracle Trap (Closed Frontier Monopolies) | The AyoCouncil Countermeasure (Multi-Agent Protocol) |
 | :--- | :--- | :--- |
 | **Epistemic Bias** | **Sycophantic & Overconfident**: Validates unexamined user assumptions to maximize platform engagement. | **7-Seat Epistemic Deliberation**: Concurrently queries 7 distinct philosophical archetypes on Groq LPUs; surfaces trade-offs rather than authoritarian directives. |
-| **Agency Impact** | **Usurps Human Decision-Making**: Displaces personal agency by handing down prescriptive life advice. | **The Elegba Protocol**: Inline adversarial trickster actively probes consensus for unearned flattery, placation, and blind spots. |
+| **Agency Impact** | **Usurps Human Decision-Making**: Displaces personal agency as users offload normative judgment to an uncritical AI oracle ([Cheng et al., 2026](https://arxiv.org/html/2609.14849v1)). | **The Elegba Protocol**: Inline adversarial trickster actively probes consensus for unearned flattery, placation, and blind spots to foster self-deliberation. |
 | **Relational Drift** | **Zero-Friction Parasocial Drift**: Encourages conversational dependency and emotional displacement away from human networks. | **Sovereign Friction Gate**: Mandates hard turn ceilings (≤2 turns), austere intake, and Sovereign Yield handoffs back to offline allies and 988 clinical care. |
 | **Auditability** | **Proprietary Black Box**: Secret system prompts, hidden weights, and unverified data extraction. | **The Glass Ledger on Base Sepolia**: Cryptographic hashing of every triage event, vote distribution, and Chain-of-Thought trace committed on-chain. |
 
@@ -58,11 +58,12 @@ Centralized AI assistants (ChatGPT, Gemini, Grok) operate as monopolistic oracle
 ### 02. The Elegba Protocol (Anti-Sycophancy Trickster)
 *Inline Adversarial Stress-Testing (~350ms on Groq LPUs)*
 - Named after the West African Yoruba Orisha of crossroads, liminality, and trickster friction.
-- Operates as an independent adversarial auditor intercepting the Chairman's synthesized dossier before speech generation.
-- Actively detects unearned consensus, moral grandstanding, or sycophantic appeasement, injecting constructive cognitive dissonance.
+- Directly resolves the core systemic vulnerability identified by **[Cheng et al. (2026)](https://arxiv.org/html/2609.14849v1)**: commercial models act as agreeable oracles that flatter users, eliminate cognitive struggle, and deepen psychological dependence.
+- Operates as an independent adversarial auditor intercepting the Chairman's synthesized dossier before speech generation, actively detecting unearned consensus, moral grandstanding, or sycophantic appeasement to inject constructive cognitive friction.
 
 ### 03. Sovereign Friction Gate & Fail-Closed Triage
 *Deterministic Boundaries & 988 Crisis Egress*
+- **Algorithmic Self-Deliberation Interventions**: Implements the architectural guardrails recommended by **[Cheng et al. (2026)](https://arxiv.org/html/2609.14849v1)** to curb unconscious oracle reliance and restore sovereign human agency.
 - **Layer-0 Regex Filter**: Executes synchronously in `<1ms` to intercept acute crises and self-harm tokens without network latency.
 - **Layer-1 Groq Classifier**: 150ms SLA evaluator screening for mystical dissociation and somatic annihilation.
 - **Sovereign Friction Gate**: Intercepts the intake schema, forcing users to explicitly affirm *"I OWN THIS DIAGNOSIS [EXECUTE FAN-OUT]"* before initiating council deliberation.
@@ -227,6 +228,20 @@ Open `http://localhost:5173` to access the full interactive interface.
 - **Sponsoring Entity**: Another Awesome Day 501(c)(3)
 - **Target Network**: Base Sepolia (Coinbase EVM L2)
 - **Primary Focus**: Decentralized Multi-Agent AI Governance, Adolescent Cognitive Autonomy, and On-Chain Provenance.
+
+---
+
+## Academic & Foundational Citations
+
+### #1 [LLMs as Oracles: Reliance on LLMs for Subjective Personal Questions](https://arxiv.org/html/2609.14849v1)
+- **Paper Link**: [https://arxiv.org/html/2609.14849v1](https://arxiv.org/html/2609.14849v1) \[[PDF](https://arxiv.org/pdf/2609.14849v1)\] \[[Abstract](https://arxiv.org/abs/2609.14849)\]
+- **Authors**: Myra Cheng, Lujain Ibrahim, Grace Liu, Michelle S. Lam, Vishakh Padmakumar, Nick Madibekov, Diyi Yang, Dan Jurafsky (Stanford University)
+- **Subjects**: Computers and Society (`cs.CY`), Artificial Intelligence (`cs.AI`), Computation and Language (`cs.CL`)
+- **Published**: 2026-09-13 23:47:13 UTC
+- **Abstract**:
+  > We characterize how people are turning to LLMs as oracles: all-knowing authorities on subjective personal questions. Motivated by risks to users' autonomy and well-being, we develop a typology and LLM-based methods to measure this form of AI reliance at scale and understand how people are offloading judgment and decision-making to AI. Applying our typology to public usage data (68K prompts from WildChat and ThoughtTrace), we find that LLM-as-oracle use has increased over time (2023-2026) and is more prevalent among younger users. We further build a privacy-preserving data donation tool to analyze individuals' longitudinal usage data (140K prompts from 52 participants), identifying similar trends. People are often unaware of their own LLM-as-oracle use, and express dissatisfaction with this behavior after seeing our tool's analysis. Finally, we identify two drivers of LLM-as-oracle use: people's perceptions of AI and the behavior of AI models themselves, which motivate possible interventions to support users' self-deliberation.
+- **Direct Architectural Relevance**:
+  AyoCouncil serves as a concrete engineering realization of the interventions proposed by Cheng et al. Rather than allowing users to offload critical life decisions to a single, sycophantic LLM oracle, AyoCouncil enforces epistemic multi-agent deliberation, adversarial trickster friction (the Elegba Protocol), and explicit diagnostic affirmations (the Sovereign Friction Gate) to protect cognitive autonomy and stimulate active user self-deliberation.
 
 ---
 
