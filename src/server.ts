@@ -23,6 +23,7 @@ import { CompiledDiagnosticSchema, IntakeSessionState, processIntakeTurn } from 
 import { evaluateTriage, TriageResult } from './middleware/triageEngine';
 import { CouncilPipeline } from './orchestrator/councilPipeline';
 import { GptLiveClient } from './services/realtime/gptLiveClient';
+import { telegramService, TelegramBroadcastPayload } from './services/telegram';
 
 export function createServer(port: number = 8080) {
   const app = express();
@@ -279,6 +280,161 @@ ${(dossier.somaticPrescriptions || []).map((p: string, i: number) => `${i + 1}. 
     }
   });
 
+  // -------------------------------------------------------------
+  // TELEGRAM Y3K CHANNEL ENDPOINTS & EVENT HOOKS
+  // -------------------------------------------------------------
+
+  // Status endpoint for Telegram integration
+  app.get('/api/v1/telegram/status', (_req: Request, res: Response) => {
+    res.json({
+      status: 'ok',
+      telegram: telegramService.getStatus(),
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  // Secure Internal Broadcast Endpoint
+  app.post('/api/v1/telegram/broadcast', async (req: Request, res: Response) => {
+    try {
+      // 1. Authorization check: Webhook secret or Admin User ID
+      const authHeader = req.headers.authorization;
+      const customSecret = req.headers['x-telegram-secret'] as string | undefined;
+      const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : customSecret;
+      const userId = (req.headers['x-admin-user-id'] as string | undefined) || req.body?.userId;
+
+      const isSecretValid = telegramService.verifyWebhook(token);
+      const isAdminUser = userId ? telegramService.verifyAdmin(userId) : false;
+
+      // Allow if secret matches, admin user matches, or if in local development with no secret set
+      const secretConfigured =
+        Boolean(process.env.TELEGRAM_WEBHOOK_SECRET) &&
+        !process.env.TELEGRAM_WEBHOOK_SECRET?.includes('your_secure_webhook_secret_here');
+
+      if (secretConfigured && !isSecretValid && !isAdminUser) {
+        res.status(403).json({
+          error: 'Unauthorized: Valid system authorization secret or admin user ID required.'
+        });
+        return;
+      }
+
+      const { inquiry, dossier, elegbaPushback, auditReceipt, text } = req.body;
+
+      if (text && typeof text === 'string') {
+        const channel = process.env.TELEGRAM_Y3K_CHANNEL_ID || '@y3K_channel';
+        const result = await telegramService.sendMessage(channel, text, { parseMode: 'HTML' });
+        res.json({ success: result.success, result });
+        return;
+      }
+
+      if (!inquiry || !dossier) {
+        res.status(400).json({ error: 'Missing "inquiry" or "dossier" in request body' });
+        return;
+      }
+
+      const payload: TelegramBroadcastPayload = {
+        inquiry,
+        dossier,
+        elegbaPushback,
+        auditReceipt
+      };
+
+      const result = await telegramService.broadcastCouncilDeliberation(payload);
+      res.json({ success: result.success, result });
+    } catch (err: any) {
+      console.error('[API /api/v1/telegram/broadcast] Error:', err);
+      res.status(500).json({ error: err.message || 'Telegram broadcast failed' });
+    }
+  });
+
+  // Telegram Incoming Webhook Handler
+  app.post('/api/v1/telegram/webhook', async (req: Request, res: Response) => {
+    try {
+      // 1. Verify Webhook Secret Token header if secret is configured
+      const secretHeader = req.headers['x-telegram-bot-api-secret-token'] as string | undefined;
+      const secretConfigured =
+        Boolean(process.env.TELEGRAM_WEBHOOK_SECRET) &&
+        !process.env.TELEGRAM_WEBHOOK_SECRET?.includes('your_secure_webhook_secret_here');
+
+      if (secretConfigured && !telegramService.verifyWebhook(secretHeader)) {
+        console.warn('[TelegramWebhook] Rejected update: invalid secret token header.');
+        res.status(403).json({ error: 'Forbidden: Invalid secret token' });
+        return;
+      }
+
+      const update = req.body;
+      const message = update?.message;
+
+      if (!message || !message.text) {
+        res.status(200).json({ ok: true });
+        return;
+      }
+
+      const text = message.text.trim();
+      const senderId = message.from?.id;
+      const chatId = message.chat?.id;
+
+      if (text === '/ping') {
+        await telegramService.sendMessage(chatId, '🏓 <b>Pong!</b> AyoCouncil y3K Bot is online.', {
+          parseMode: 'HTML'
+        });
+        res.status(200).json({ ok: true });
+        return;
+      }
+
+      if (text === '/status') {
+        const status = telegramService.getStatus();
+        const reply = `🏛 <b>AyoCouncil // y3K Telegram Status</b>\n• <b>Configured:</b> ${status.configured}\n• <b>Target Channel:</b> <code>${status.channelId || 'None'}</code>\n• <b>Authorized Admins:</b> ${status.adminCount}\n• <b>Zero-Retention:</b> Active (RAM-only)`;
+        await telegramService.sendMessage(chatId, reply, { parseMode: 'HTML' });
+        res.status(200).json({ ok: true });
+        return;
+      }
+
+      if (text.startsWith('/broadcast')) {
+        // Enforce Admin Verification Gate
+        const isAuthorized = telegramService.verifyAdmin(senderId);
+        if (!isAuthorized) {
+          await telegramService.sendMessage(
+            chatId,
+            `⛔ <b>ACCESS DENIED</b>\nUser ID <code>${senderId}</code> is not authorized to trigger broadcasts to the y3K channel.`,
+            { parseMode: 'HTML' }
+          );
+          res.status(200).json({ ok: true, error: 'Unauthorized user' });
+          return;
+        }
+
+        const broadcastContent = text.replace('/broadcast', '').trim();
+        if (!broadcastContent) {
+          await telegramService.sendMessage(
+            chatId,
+            '⚠️ <i>Usage:</i> <code>/broadcast &lt;message&gt;</code>',
+            { parseMode: 'HTML' }
+          );
+          res.status(200).json({ ok: true });
+          return;
+        }
+
+        const channel = process.env.TELEGRAM_Y3K_CHANNEL_ID || '@y3K_channel';
+        const result = await telegramService.sendMessage(channel, broadcastContent, {
+          parseMode: 'HTML'
+        });
+        await telegramService.sendMessage(
+          chatId,
+          result.success
+            ? `✅ Broadcast successfully dispatched to ${channel} (Message ID: ${result.messageId || 'simulated'}).`
+            : `❌ Broadcast failed: ${result.error}`,
+          { parseMode: 'HTML' }
+        );
+        res.status(200).json({ ok: true, result });
+        return;
+      }
+
+      res.status(200).json({ ok: true });
+    } catch (err: any) {
+      console.error('[API /api/v1/telegram/webhook] Error:', err);
+      res.status(200).json({ ok: false, error: err.message });
+    }
+  });
+
   // Single-Domain Production Static Serving: client/dist
   const possibleDistPaths = [
     path.resolve(process.cwd(), 'client/dist'),
@@ -348,5 +504,5 @@ ${(dossier.somaticPrescriptions || []).map((p: string, i: number) => `${i + 1}. 
     });
   });
 
-  return { server, app, wss, pipeline, liveClient, port };
+  return { server, app, wss, pipeline, liveClient, telegramService, port };
 }

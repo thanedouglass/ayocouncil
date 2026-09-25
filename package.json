@@ -13,6 +13,7 @@
     "test:live": "ts-node src/test_live_inquiry.ts",
     "test:triage": "ts-node src/test_triage.ts",
     "test:cot": "ts-node src/test_cot_antidogma.ts",
+    "test:telegram": "ts-node src/test_telegram_broadcast.ts",
     "client:dev": "npm --prefix client run dev",
     "client:build": "npm --prefix client run build"
   },
