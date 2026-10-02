@@ -10,8 +10,8 @@
 
 </div>
 
-> ### 🏆 Official Pitch Submission
-> **9th Annual Black Blockchain Summit Pitch Competition**  
+> ### 🏆 Official 1st Pitch Winning Project
+> **9th Annual Black Blockchain Summit Student Pitch Competition Submission**  
 > **In Partnership with MaC Venture Capital**  
 > *Developed by [Another Awesome Day 501(c)(3)](https://anotherawesomeday.org) in alignment with research on Adolescent AI Safety, Cognitive Autonomy, and Decentralized Multi-Agent Epistemics.*
 
@@ -19,7 +19,7 @@
 
 ## Overview
 
-![AyoCouncil Banner](.assets/ayocouncil_repo_card_vfx.png)
+![AyoCouncil Banner](.assets/repo-card.png)
 
 **AyoCouncil** is an enterprise-grade, low-latency multi-agent neural governance engine and real-time voice pipeline. Designed to dismantle the monolithic "Oracle Trap" of centralized frontier AI, AyoCouncil ingests live conversational audio via **GPT-Live-1**, fans out concurrently across **seven epistemic philosophical council seats** running on **Groq LPUs**, subjects emerging consensus to adversarial stress-testing via the **Elegba Protocol**, and settles decision provenance on **Base Sepolia** via cryptographic Chain-of-Thought (CoT) hashes.
 
