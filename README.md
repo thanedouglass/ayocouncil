@@ -17,7 +17,7 @@
 
 ---
 
-## 🚨 MUST READ: OPENAI RESEARCH GRANT TECHNICAL ARCHITECTURE (BRANCH: `feature/adk-graph-consensus`)
+## 🚨 MUST READ: OPENAI RESEARCH GRANT TECHNICAL ARCHITECTURE (BRANCH: `feature/adk-graph`)
 
 > **Target Goal**: *Building Safer AI Conversations for Teens* (Another Awesome Day 501(c)(3) · Lead Researcher: Thane Allan Douglass).  
 > **Engineering Invariant**: **Zero Data Retention (ZDR)**. Real-time client-side rPPG processing in WebAssembly with zero external video egress, coupled via OS-level non-blocking POSIX IPC to a deterministic 7-seat agentic consensus graph with hardware-accelerated Groq LPU verification and mTLS 988 emergency escalation.
