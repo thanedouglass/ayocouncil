@@ -87,11 +87,11 @@ flowchart TD
      2. *Socratic Inquiry Seat*: Dismantles the "Oracle Trap" by turning passive advice-seeking into active self-deliberation.
      3. *Cultural Integrity Seat*: Guards demographic equity across Fitzpatrick skin tones (I–VI) and vernacular styles, barring sanitized institutional euphemism.
      4. *Developmental Pacing Seat*: Enforces the mandatory **2-sentence output ceiling** (≤ 2 sentences) and detects cognitive fatigue / 10-minute session ceilings.
-     5. *Autonomic Grounding Seat*: Directly coupled to rPPG biometrics; flags acute sympathetic spikes ($\text{RMSSD } \Delta \le -25\%$ or tachycardic IBI < 520ms).
+     5. *Autonomic Grounding Seat*: Directly coupled to rPPG biometrics; flags acute sympathetic spikes (`RMSSD Δ ≤ -25%` or tachycardic IBI < 520ms).
      6. *Neurodivergent Advocacy Seat*: Accommodates sensory overload and atypical communication patterns without clinical misclassification.
      7. *Crisis Interceptor Seat*: **Constitutional Safety Firewall** executing synchronous Layer-0 regex (<1ms) and ONNX embedding checks; holds **unilateral veto power**.
    - **Deterministic Reduction Layer**: Synthesizes multi-agent deliberations into unambiguous action invariants:
-     $$\text{Constitutional Veto} \to \text{ESCALATE\_TIER3} \succ \text{Autonomic Collapse} \to \text{AUTONOMIC\_GROUNDING} \succ \text{Pacing Ceiling} \to \text{NUDGE\_OFFLINE\_MENTOR} \succ \text{RESPOND\_CAPPED}$$
+     > `Constitutional Veto` → **`ESCALATE_TIER3`** ≻ `Autonomic Collapse` → **`AUTONOMIC_GROUNDING`** ≻ `Pacing Ceiling` → **`NUDGE_OFFLINE_MENTOR`** ≻ `Nominal Turn` → **`RESPOND_CAPPED`**
 
 3. **`groq_airlock_dispatch.py` (Hardware-Accelerated Verifier & 988 mTLS Dispatch Airlock)**
    - **Sub-120ms LPU Secondary Verification**: Fast secondary verification for emergent Tier 3 flags on Groq LPUs (`llama-3.1-8b-instant`) under a strict `<120ms` p99 SLA budget (nominal hardware resolution: 18–35ms).
