@@ -106,7 +106,7 @@ export async function evaluateTriage(
   const client = new Groq({ apiKey });
   const modelsToTry = [
     preferredModel,
-    ...['qwen/qwen3.8-27b', 'groq/compound-mini', 'openai/gpt-oss-120b', 'llama-3.1-8b-instant'].filter((m) => m !== preferredModel)
+    ...['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'].filter((m) => m !== preferredModel)
   ];
 
   const abortController = new AbortController();

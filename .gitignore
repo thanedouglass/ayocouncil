@@ -6,3 +6,5 @@ client/dist/
 client/.vite/
 *.log
 .DS_Store
+__pycache__/
+*.pyc

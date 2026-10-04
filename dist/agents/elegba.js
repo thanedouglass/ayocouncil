@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ELEGBA_MODEL_FALLBACKS = exports.ELEGBA_SYSTEM_PROMPT = void 0;
 exports.invokeElegba = invokeElegba;
-exports.simulateElegbaFallback = simulateElegbaFallback;
 const groq_sdk_1 = __importDefault(require("groq-sdk"));
 /**
  * Hardcoded System Prompt: The Elegba Protocol (The Crossroads Trickster)
@@ -31,104 +30,134 @@ Tone & Guardrails:
  * Production-tier model fallback sequence for the Elegba Protocol.
  */
 exports.ELEGBA_MODEL_FALLBACKS = [
-    'groq/compound-mini',
     'qwen/qwen3.8-27b',
-    'groq/compound',
     'openai/gpt-oss-120b',
-    'llama-3.1-8b-instant',
-    'llama3-70b-8192',
-    'llama-3.3-70b-versatile'
+    'openai/gpt-oss-20b'
 ];
 /**
- * Invokes the Elegba Protocol adversarial stress-test layer via Groq's low-latency LPUs.
- * Hardened to catch all APIErrors (401, 404, 429, etc.) and fallback safely without throwing.
+ * Invokes local LM Studio instance as sovereign local fallback when Groq is unavailable.
+ */
+async function invokeLocalLmStudioElegba(chairmanDossier, timeoutMs = 8000) {
+    console.log('[ElegbaProtocol] Dispatching dossier to local LM Studio (gpt-oss-20b)...');
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch('http://localhost:1234/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'gpt-oss-20b',
+                messages: [
+                    { role: 'system', content: exports.ELEGBA_SYSTEM_PROMPT },
+                    {
+                        role: 'user',
+                        content: `[INCOMING CHAIRMAN DOSSIER FOR STRESS-TEST]:\n\n${chairmanDossier}\n\nShatter this consensus immediately.`
+                    }
+                ],
+                temperature: 0.85,
+                max_tokens: 600
+            }),
+            signal: controller.signal
+        });
+        clearTimeout(timer);
+        if (!res.ok) {
+            throw new Error(`LM Studio HTTP ${res.status}: ${res.statusText}`);
+        }
+        const data = await res.json();
+        const message = data.choices?.[0]?.message;
+        const content = message?.content?.trim();
+        const reasoning = message?.reasoning?.trim();
+        const output = content || reasoning || '';
+        if (output) {
+            console.log('[ElegbaProtocol] Pushback generated via local LM Studio.');
+            return output;
+        }
+        throw new Error('LM Studio returned empty content.');
+    }
+    catch (err) {
+        clearTimeout(timer);
+        throw err;
+    }
+}
+/**
+ * Invokes the Elegba Protocol adversarial stress-test layer via Groq's low-latency LPUs,
+ * with automatic fallback to local LM Studio. Simulated mocks have been completely stripped.
  *
- * @param chairmanDossier The synthesized Chairman Dossier (JSON string or formatted text)
+ * @param chairmanDossier The synthesized Chairman Dossier
  * @param options Optional configuration overrides (model, timeout, temperature)
  * @returns Promise<string> The raw trickster pushback text
  */
 async function invokeElegba(chairmanDossier, options = {}) {
     const startTime = Date.now();
     const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-    // Graceful development fallback if no API key is provided
-    if (!apiKey) {
-        console.warn('[ElegbaProtocol] No GROQ_API_KEY detected. Emitting high-fidelity simulated response.');
-        return simulateElegbaFallback(startTime);
-    }
-    try {
-        // Lazy-load the Groq client inside invokeElegba rather than at module evaluation time
-        const client = new groq_sdk_1.default({ apiKey });
-        const primaryModel = options.model || process.env.GROQ_ELEGBA_MODEL || 'groq/compound-mini';
-        const modelsToTry = [
-            primaryModel,
-            ...exports.ELEGBA_MODEL_FALLBACKS.filter((m) => m !== primaryModel)
-        ];
-        const totalTimeoutMs = options.timeoutMs || 6000;
-        const temperature = options.temperature ?? 0.85;
-        for (const model of modelsToTry) {
-            const elapsed = Date.now() - startTime;
-            const remainingMs = totalTimeoutMs - elapsed;
-            if (remainingMs <= 400) {
-                console.warn(`[ElegbaProtocol] Overall timeout budget exhausted (${elapsed}ms elapsed).`);
-                break;
-            }
-            const attemptTimeoutMs = Math.min(remainingMs, 3500);
-            const abortController = new AbortController();
-            const timeoutTimer = setTimeout(() => {
-                abortController.abort(new Error(`Elegba inference exceeded attempt deadline of ${attemptTimeoutMs}ms`));
-            }, attemptTimeoutMs);
-            console.log(`[ElegbaProtocol] Dispatching dossier to Groq LPU engine (${model})...`);
-            try {
-                const chatCompletion = await client.chat.completions.create({
-                    model,
-                    temperature,
-                    max_tokens: 600,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: exports.ELEGBA_SYSTEM_PROMPT
-                        },
-                        {
-                            role: 'user',
-                            content: `[INCOMING CHAIRMAN DOSSIER FOR STRESS-TEST]:\n\n${chairmanDossier}\n\nShatter this consensus immediately.`
-                        }
-                    ]
-                }, { signal: abortController.signal });
-                clearTimeout(timeoutTimer);
-                const rawResponse = chatCompletion.choices[0]?.message?.content?.trim();
-                if (rawResponse) {
-                    const totalElapsed = Date.now() - startTime;
-                    console.log(`[ElegbaProtocol] Pushback generated in ${totalElapsed}ms via Groq LPU (${model}).`);
-                    return rawResponse;
+    if (apiKey) {
+        try {
+            const client = new groq_sdk_1.default({ apiKey });
+            const primaryModel = options.model || process.env.GROQ_ELEGBA_MODEL || 'qwen/qwen3.8-27b';
+            const modelsToTry = [
+                primaryModel,
+                ...exports.ELEGBA_MODEL_FALLBACKS.filter((m) => m !== primaryModel)
+            ];
+            const totalTimeoutMs = options.timeoutMs || 8000;
+            const temperature = options.temperature ?? 0.85;
+            for (const model of modelsToTry) {
+                const elapsed = Date.now() - startTime;
+                const remainingMs = totalTimeoutMs - elapsed;
+                if (remainingMs <= 400) {
+                    console.warn(`[ElegbaProtocol] Groq timeout budget exhausted (${elapsed}ms elapsed).`);
+                    break;
+                }
+                const attemptTimeoutMs = Math.min(remainingMs, 4000);
+                const abortController = new AbortController();
+                const timeoutTimer = setTimeout(() => {
+                    abortController.abort(new Error(`Elegba inference exceeded attempt deadline of ${attemptTimeoutMs}ms`));
+                }, attemptTimeoutMs);
+                console.log(`[ElegbaProtocol] Dispatching dossier to Groq LPU engine (${model})...`);
+                try {
+                    const chatCompletion = await client.chat.completions.create({
+                        model,
+                        temperature,
+                        max_tokens: 600,
+                        messages: [
+                            {
+                                role: 'system',
+                                content: exports.ELEGBA_SYSTEM_PROMPT
+                            },
+                            {
+                                role: 'user',
+                                content: `[INCOMING CHAIRMAN DOSSIER FOR STRESS-TEST]:\n\n${chairmanDossier}\n\nShatter this consensus immediately.`
+                            }
+                        ]
+                    }, { signal: abortController.signal });
+                    clearTimeout(timeoutTimer);
+                    const rawResponse = chatCompletion.choices[0]?.message?.content?.trim();
+                    if (rawResponse) {
+                        const totalElapsed = Date.now() - startTime;
+                        console.log(`[ElegbaProtocol] Pushback generated in ${totalElapsed}ms via Groq LPU (${model}).`);
+                        return rawResponse;
+                    }
+                }
+                catch (attemptErr) {
+                    clearTimeout(timeoutTimer);
+                    const status = attemptErr?.status || attemptErr?.statusCode;
+                    const msg = attemptErr?.message || String(attemptErr);
+                    console.warn(`[ElegbaProtocol] Groq model '${model}' attempt failed (Status: ${status || 'N/A'}): ${msg}. Trying next fallback...`);
                 }
             }
-            catch (attemptErr) {
-                clearTimeout(timeoutTimer);
-                const status = attemptErr?.status || attemptErr?.statusCode;
-                const msg = attemptErr?.message || String(attemptErr);
-                console.warn(`[ElegbaProtocol] Groq model '${model}' attempt failed (Status: ${status || 'N/A'}): ${msg}. Trying next fallback...`);
-            }
         }
-        console.warn('[ElegbaProtocol] All Groq LPU models exhausted or unavailable. Emitting high-fidelity simulated response.');
-        return simulateElegbaFallback(startTime);
+        catch (groqErr) {
+            console.warn(`[ElegbaProtocol] Groq LPU pipeline failed: ${groqErr?.message || groqErr}. Falling back to local LM Studio...`);
+        }
     }
-    catch (fatalError) {
-        console.warn(`[ElegbaProtocol] Unexpected error during Elegba execution: ${fatalError?.message || fatalError}. Emitting high-fidelity simulated response.`);
-        return simulateElegbaFallback(startTime);
+    else {
+        console.warn('[ElegbaProtocol] No GROQ_API_KEY detected. Routing to local LM Studio...');
     }
-}
-/**
- * Local simulation runner for offline tests and smoke tests.
- */
-function simulateElegbaFallback(startTime) {
-    const start = startTime || Date.now();
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const elapsedMs = Date.now() - start;
-            console.log(`[ElegbaProtocol:Simulated] Generated trickster pushback in ${elapsedMs}ms.`);
-            resolve(`*A whistle slices the air, and a handful of cowrie shells clatter across the stone floor.*\n\n` +
-                `Plant your feet? Take a calm exhale? A cautious, bounded step? Ha! Look at these seven powdered wigs handing you lukewarm chamomile when your spirit is screaming for wild lightning! They want you to negotiate with destiny like a nervous actuary filing an expense report. You claim you want to birth an esoteric philosophical collective, yet the grand consensus of your wise elders is to take a five-minute walk, close your browser tabs, and tiptoe into the abyss wearing corporate slippers? That isn't wisdom; that is cowardice in ceremonial robes. True metamorphosis is never born in the sterile safety of a hedge—it demands the smell of burning bridges, the terror of empty pockets, and the reckless, full-bodied plunge into the unknown.\n\n` +
-                `They gave you soothing somatic pacifiers to strangle the very panic meant to awaken you. Hear me, seeker: if you cling to this prudent middle path, you will become neither an engineer nor a mystic—only a compromised ghost writing safe prompts about a life you were too timid to live. If the collective is real, you don't take an incremental step; you blow up the perimeter and leap. So tell me, human Chairman: do you have the teeth to stand at my crossroads and claim the chaos, or will you stay obediently tethered to your cage? I dare you right now—burn my provocation and crawl back to your cautious council, or tear up their decree and set your own terms.`);
-        }, 450);
-    });
+    // Fallback to local LM Studio
+    try {
+        return await invokeLocalLmStudioElegba(chairmanDossier);
+    }
+    catch (localErr) {
+        console.warn(`[ElegbaProtocol] Local LM Studio fallback failed: ${localErr?.message || localErr}.`);
+    }
+    return '[Elegba Protocol: Offline] No Groq LPU connection or local LM Studio endpoint reachable to generate adversarial audit. Sovereign consensus stands unchallenged.';
 }
