@@ -74,7 +74,7 @@ async function evaluateTriage(text, options = {}) {
     }
     // Layer-0 passed; proceed to Layer-1 Groq classifier
     const apiKey = options.apiKey || process.env.GROQ_API_KEY;
-    const preferredModel = options.model || process.env.GROQ_TRIAGE_MODEL || 'llama-3.1-8b-instant';
+    const preferredModel = options.model || process.env.GROQ_TRIAGE_MODEL || 'qwen/qwen3.8-27b';
     const timeoutMs = options.timeoutMs || 2500;
     // If no Groq API key is present in development, run deterministic heuristic fallback
     if (!apiKey) {
@@ -86,7 +86,7 @@ async function evaluateTriage(text, options = {}) {
     const client = new groq_sdk_1.default({ apiKey });
     const modelsToTry = [
         preferredModel,
-        ...['llama-3.1-8b-instant', 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b'].filter((m) => m !== preferredModel)
+        ...['qwen/qwen3.8-27b', 'groq/compound-mini', 'openai/gpt-oss-120b', 'llama-3.1-8b-instant'].filter((m) => m !== preferredModel)
     ];
     const abortController = new AbortController();
     const timeoutTimer = setTimeout(() => {
